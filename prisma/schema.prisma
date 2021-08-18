@@ -1,0 +1,57 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model artists {
+    art_id   String  @id
+    art_name String
+    art_type String
+    album    album[]
+}
+
+model comment {
+    cm_id         String  @id
+    comment       String
+    cm_image      String
+    account_ac_id String
+    account       account @relation(fields: [account_ac_id], references: [ac_id])
+}
+
+model album {
+    a_id           String     @id
+    a_name         String
+    price          Decimal
+    release_date   DateTime   @db.Date
+    description    String
+    cover_image    String
+    preview_image  String
+    artists_art_id String
+    artists        artists    @relation(fields: [artists_art_id], references: [art_id])
+    favorite       favorite[]
+}
+
+model account {
+    ac_id       String     @id
+    ac_username String
+    ac_password String     @db.Char(32)
+    ac_email    String
+    ac_fname    String
+    ac_lname    String
+    ac_picture  String
+    ac_role     String
+    comment     comment[]
+    favorte     favorite[]
+}
+
+model favorite {
+    fv_id         String  @id
+    album_a_id    String
+    account_ac_id String
+    album         album   @relation(fields: [album_a_id], references: [a_id])
+    account       account @relation(fields: [account_ac_id], references: [ac_id])
+}
