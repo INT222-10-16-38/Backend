@@ -30,7 +30,7 @@ const validateAlbum = (data) => {
     return schema.validate(data)
 }
 
-const validateAccount = (data) => {
+const validateRegister = (data) => {
     const schema = Joi.object({
         ac_username: Joi.string().min(6).required(),
         ac_password: Joi.string().min(6).required(),
@@ -39,6 +39,14 @@ const validateAccount = (data) => {
         ac_lname: Joi.string().min(3).required(),
         ac_image: Joi.string().min(3).required(),
         ac_role: Joi.string().min(3),
+    })
+    return schema.validate(data)
+}
+
+const validateLogin = (data) => {
+    const schema = Joi.object({
+        ac_username: Joi.string().min(6).required(),
+        ac_password: Joi.string().min(6).required(),
     })
     return schema.validate(data)
 }
@@ -54,5 +62,6 @@ const validateFavorite = (data) => {
 module.exports.validateArtist = validateArtist
 module.exports.validateBoard = validateBoard
 module.exports.validateAlbum = validateAlbum
-module.exports.validateAccount = validateAccount
+module.exports.validateRegister = validateRegister
+module.exports.validateLogin = validateLogin
 module.exports.validateFavorite = validateFavorite
