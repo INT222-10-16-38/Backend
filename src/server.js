@@ -6,7 +6,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-let port = 9000
+let port = process.env.PORT || 9000
 app.listen(port, () => {
     console.log(`The server is running at port : ${port}`)
 })
