@@ -44,7 +44,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Generate salt and hash password
-    const salt = await bcrypt.genSalt(10)
+    const salt = await bcrypt.genSalt(3)
     const hashedPassword = await bcrypt.hash(body.ac_password, salt)
     body.ac_password = hashedPassword
 

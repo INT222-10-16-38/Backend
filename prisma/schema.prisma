@@ -28,6 +28,7 @@ model album {
     a_name         String
     price          Decimal
     description    String
+    release_date   DateTime   @db.Date
     cover_image    String
     preview_image  String
     favorite       favorite[]
@@ -38,7 +39,7 @@ model album {
 model account {
     ac_id       Int        @id @default(dbgenerated())
     ac_username String
-    ac_password String     
+    ac_password String
     ac_email    String
     ac_fname    String
     ac_lname    String

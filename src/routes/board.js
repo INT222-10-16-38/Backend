@@ -17,6 +17,8 @@ router.get("/", async (req, res) => {
 
 router.post('/add', async (req, res) => {
     let body = req.body
+    console.log(body)
+    body.account_ac_id = parseInt(body.account_ac_id)
     const { error } = validateBoard(body)
     if (error) return res.send({ err: error.details[0].message })
     await board.create({
