@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const { PrismaClient } = require("@prisma/client")
 const { artists } = new PrismaClient()
-const { validateArtist } = require("../../helpers/validation")
+const { validateArtist } = require("../helpers/validation")
 
 router.get("/", async (req, res) => {
     await artists.findMany().then((results) => {
@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
 })
 
 router.get("/:id", async (req, res) => {
-    let id = req.params.id
+    let id = Number(req.params.id)
     await artists.findMany({
         where: {
             art_id: id
@@ -30,6 +30,21 @@ router.post("/add", async (req, res) => {
     }).then((result) => {
         return res.send(result)
     })
+})
+
+router.delete("/delete/:id", async (req, res) => {
+    let id = Number(req.params.id)
+
+    let result = await artists.deleteMany({
+        where: {
+            art_id: id
+        }
+    })
+    if (result.count <= 0) {
+        return res.send({ msg: "Artist doesn't exists" })
+    }
+
+    return res.send({ msg: "Delete Album Successfully" })
 })
 
 module.exports = router

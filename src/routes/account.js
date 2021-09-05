@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const { PrismaClient } = require("@prisma/client")
 const { account } = new PrismaClient()
-const { validateRegister, validateLogin } = require("../../helpers/validation")
+const { validateRegister, validateLogin } = require("../helpers/validation")
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
 
@@ -9,19 +9,20 @@ router.get("/", async (req, res) => {
     await account.findMany().then((results) => {
         return res.send({ data: results })
     }).catch((err) => {
+        console.log(err)
         return res.send({ status: "Can't get data", error: err })
     })
 })
 
 router.get("/:id", async (req, res) => {
-    let id = req.params.id
+    let id = Number(req.params.id)
     let results = await account.findMany({
         where: {
             ac_id: id
-        }
+        },
     })
-    if (results) {
-        return res.send({ data: results })
+    if (!results) {
+        return res.send({ msg: "Can't find userId" })
     }
 })
 
@@ -31,20 +32,22 @@ router.post("/register", async (req, res) => {
     if (error) return res.send({ err: error.details[0].message })
 
     // Find with email
-    let emailExists = await account.findFirst({
+    let userExists = await account.findFirst({
         where: {
-            ac_email: body.ac_email
+            OR: [
+                { ac_email: body.ac_email },
+                { ac_username: body.ac_username }
+            ]
         }
     })
 
     // Check email if exists throw error
-    console.log(emailExists)
-    if (emailExists) {
-        return res.status(400).send({ msg: "Email already exists" })
+    if (userExists) {
+        return res.status(400).send({ msg: "User already exists" })
     }
 
     // Generate salt and hash password
-    const salt = await bcrypt.genSalt(3)
+    const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(body.ac_password, salt)
     body.ac_password = hashedPassword
 
@@ -77,12 +80,14 @@ router.post("/login", async (req, res) => {
 
     // Create TOKEN
     const token = jwt.sign({ id: findedUser.ac_id }, process.env.TOKEN_SECRET)
-    return res.cookie("token", token).send({ msg: "Login Successfully", sessionId: req.sessionID, token: token })
+
+    // When HTTPS delete tokenJSON response
+    return res.cookie("token", token).send({ msg: "Login Successfully", token: token })
 })
 
-router.delete("/:id", async (req, res) => {
-    let id = req.params.id
-    id = parseInt(id)
+router.delete("/delete/:id", async (req, res) => {
+    let id = Number(req.params.id)
+    id = Number(id)
     await account.delete({
         where: {
             ac_id: id
