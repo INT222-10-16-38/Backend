@@ -24,8 +24,8 @@ const validateAlbum = (data) => {
         price: Joi.number().min(1).required(),
         release_date: Joi.date().required(),
         description: Joi.string().min(1).required(),
-        cover_image: Joi.string().min(1).required(),
-        preview_image: Joi.string().min(1).required(),
+        cover_image: Joi.string().min(1).allow(null, '').required(),
+        preview_image: Joi.string().min(1).allow(null, '').required(),
         artists_art_id: Joi.number().min(1).required(),
     })
     return schema.validate(data)

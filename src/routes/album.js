@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     }).then((results) => {
         return res.send({ data: results })
     }).catch((err) => {
-        return res.send({ status: "Can't get data", error: err })
+        return res.status(400).send({ status: "Can't get data", error: err })
     })
 })
 
@@ -23,7 +23,7 @@ router.get("/:id", async (req, res) => {
         }
     })
     if (!result) {
-        return res.send({ msg: `Cant't find album from albumId : ${id}` })
+        return res.status(400).send({ msg: `Cant't find album from albumId : ${id}` })
     }
     return res.send({ data: result })
 })
@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
 router.post("/add", async (req, res) => {
     let body = req.body
     const { error } = validateAlbum(body)
-    if (error) return res.send({ err: error.details[0].message })
+    if (error) return res.status(400).send({ err: error.details[0].message })
 
     body.release_date = new Date(body.release_date)
     await album.create({
@@ -49,7 +49,7 @@ router.delete("/delete/:id", async (req, res) => {
         }
     })
     if (result.count <= 0) {
-        return res.send({ msg: "Album doesn't exists" })
+        return res.status(400).send({ msg: "Album doesn't exists" })
     }
     return res.send({ msg: "Delete Succesfully" })
 })
