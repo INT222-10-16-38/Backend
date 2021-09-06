@@ -15,6 +15,19 @@ router.get("/", async (req, res) => {
     })
 })
 
+router.get("/:id", async (req, res) => {
+    let id = Number(req.params.id)
+    let result = await album.findFirst({
+        where: {
+            a_id: id
+        }
+    })
+    if (!result) {
+        return res.send({ msg: `Cant't find album from albumId : ${id}` })
+    }
+    return res.send({ data: result })
+})
+
 router.post("/add", async (req, res) => {
     let body = req.body
     const { error } = validateAlbum(body)
