@@ -81,14 +81,14 @@ router.post("/login", async (req, res) => {
     // Create TOKEN
     const token = jwt.sign({ id: findedUser.ac_id }, process.env.TOKEN_SECRET)
 
+
     // When HTTPS delete tokenJSON response
     return res.cookie("token", token).send({ msg: "Login Successfully", token: token })
 })
 
 router.delete("/delete/:id", async (req, res) => {
     let id = Number(req.params.id)
-    id = Number(id)
-    await account.delete({
+    await account.deleteMany({
         where: {
             ac_id: id
         }

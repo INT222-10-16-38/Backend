@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
@@ -20,7 +21,7 @@ model board {
   b_caption     String  @db.VarChar(1000)
   b_image       String? @db.VarChar(2000)
   account_ac_id Int
-  account       account @relation(fields: [account_ac_id], references: [ac_id])
+  account       account @relation(fields: [account_ac_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([account_ac_id], name: "fk_board_account1_idx")
 }
@@ -34,7 +35,7 @@ model album {
   cover_image    String     @db.VarChar(2000)
   preview_image  String     @db.VarChar(2000)
   artists_art_id Int
-  artists        artists    @relation(fields: [artists_art_id], references: [art_id])
+  artists        artists    @relation(fields: [artists_art_id], references: [art_id], onDelete: Cascade, onUpdate: NoAction)
   favorite       favorite[]
 
   @@index([artists_art_id], name: "fk_album_artists_idx")
@@ -57,8 +58,8 @@ model favorite {
   fav_id        Int     @id @default(autoincrement())
   album_a_id    Int
   account_ac_id Int
-  account       account @relation(fields: [account_ac_id], references: [ac_id])
-  album         album   @relation(fields: [album_a_id], references: [a_id])
+  account       account @relation(fields: [account_ac_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
+  album         album   @relation(fields: [album_a_id], references: [a_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([account_ac_id], name: "fk_album_has_account_account1_idx")
   @@index([album_a_id], name: "fk_album_has_account_album1_idx")

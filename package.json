@@ -17,6 +17,7 @@
     "@hapi/joi": "^17.1.1",
     "@prisma/client": "^2.29.1",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dayjs": "^1.10.6",
     "dotenv": "^10.0.0",
