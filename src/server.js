@@ -4,8 +4,8 @@ const cookieParser = require("cookie-parser")
 const app = express()
 
 app.use(cors({
-    credentials: true,
-    origin: true
+  credentials: true,
+  origin: true
 }))
 app.use(cookieParser())
 app.use(express.json())
@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }))
 
 let port = process.env.PORT || 9000
 app.listen(port, () => {
-    console.log(`The server is running at port : ${port}`)
+  console.log(`The server is running at port : ${port}`)
 })
 
 app.use("/", require("./routes/backendCheck"))

@@ -8,3 +8,11 @@
 
 #.env
 .env
+
+# upload image
+/uploads
+
+# Mockup Data
+album.mockup.json
+account.mockup.json
+board.mockup.json
