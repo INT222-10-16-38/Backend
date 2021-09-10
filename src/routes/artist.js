@@ -31,6 +31,21 @@ router.post("/add", async (req, res) => {
   })
 })
 
+router.put("/edit/:id", async (req, res) => {
+  let id = Number(req.params.id)
+  let body = req.body
+  const { error } = validateArtist(body)
+  if (error) return res.send({ err: error.details[0].message })
+
+  let result = await artists.update({
+    data: body,
+    where: {
+      art_id: id
+    }
+  })
+  return res.send({ msg: "Update Successfully", data: result })
+})
+
 router.delete("/delete/:id", async (req, res) => {
   let id = Number(req.params.id)
 
