@@ -24,11 +24,10 @@ router.post("/add", async (req, res) => {
   const { error } = validateArtist(body)
   if (error) return res.send({ err: error.details[0].message })
 
-  await artists.create({
+  let result = await artists.create({
     data: body
-  }).then((result) => {
-    return res.send(result)
   })
+  return res.send({ msg: "Create Successfully", result: result })
 })
 
 router.put("/edit/:id", async (req, res) => {

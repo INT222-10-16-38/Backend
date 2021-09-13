@@ -2,8 +2,7 @@ const router = require("express").Router()
 const { board } = require("../models/model")
 const { validateBoard } = require("../helpers/validation")
 const upload = require("../middlewares/uploadFile")
-const fs = require("fs/promises")
-const { readFile, deleteFile } = require("../helpers/file")
+const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 
 router.get("/", async (req, res) => {
   await board.findMany({
@@ -23,8 +22,10 @@ router.post('/add', async (req, res) => {
       return res.status(400).send({ msg: err.message })
     }
     let files = req.files
-    console.log(files)
     let imgFile = []
+    if (!files) {
+      return res.status(400).send({ msg: "Please send data with data-form" })
+    }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.fieldname == 'b_image') {
@@ -36,7 +37,6 @@ router.post('/add', async (req, res) => {
         for (const [index, img] of imgFile.entries()) {
           if (img.fieldname == "b_image") {
             boardData.b_image = await img.filename
-            console.log(boardData)
           }
         }
         const { error } = validateBoard(boardData)
@@ -54,6 +54,8 @@ router.post('/add', async (req, res) => {
         return res.send({ status: "Create Board Successfully", err: false })
       }
     }
+    await dataNotValid(files)
+    return res.status(400).send({ msg: "Please send data" })
   })
   /* let body = req.body
   // Delete when using authen
@@ -65,7 +67,6 @@ router.post('/add', async (req, res) => {
   }).then(() => {
       return res.send({ status: "Add board Successfully", err: false })
   }) */
-
 })
 
 router.put("/edit/:id", async (req, res) => {
@@ -84,24 +85,33 @@ router.put("/edit/:id", async (req, res) => {
       }
     })
 
+    if (!findedBoard) {
+      return res.status(400).send({ msg: "Can't find board id" })
+    }
+
     let files = req.files
-    console.log(files)
     let imgFile = []
+    if (!files) {
+      return res.status(400).send({ msg: "Please send data with data-form" })
+    }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.fieldname == 'b_image') {
         imgFile.push(file)
-        if(findedBoard){
+        if (findedBoard) {
           deleteFile(findedBoard.b_image)
         }
       }
       if (file.mimetype == "application/json") {
         let boardData = await readFile(file)
         deleteFile(file.filename)
+        if (!findedBoard.b_image) {
+          findedBoard.b_image = ""
+        }
+        boardData.b_image = findedBoard.b_image
         for (const [index, img] of imgFile.entries()) {
           if (img.fieldname == "b_image") {
             boardData.b_image = await img.filename
-            console.log(boardData)
           }
         }
         const { error } = validateBoard(boardData)
@@ -122,6 +132,8 @@ router.put("/edit/:id", async (req, res) => {
         return res.send({ status: "Update Board Successfully", err: false })
       }
     }
+    await dataNotValid(files)
+    return res.status(400).send({ msg: "Please send data" })
   })
 })
 

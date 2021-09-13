@@ -2,8 +2,7 @@ const router = require("express").Router()
 const upload = require("../middlewares/uploadFile")
 const { album } = require("../models/model")
 const { validateAlbum } = require("../helpers/validation")
-const fs = require("fs/promises")
-const { readFile, deleteFile } = require("../helpers/file")
+const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 
 router.get("/", async (req, res) => {
   let results
@@ -47,6 +46,9 @@ router.post("/add", async (req, res, err) => {
     }
     let files = req.files
     let imgFile = []
+    if (!files) {
+      return res.status(400).send({ msg: "Please send data with data-form" })
+    }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.fieldname == 'cover_image' || file.fieldname == 'preview_image') {
@@ -63,7 +65,6 @@ router.post("/add", async (req, res, err) => {
             albumData.preview_image = await img.filename
           }
         }
-        console.log(albumData)
         const { error } = validateAlbum(albumData)
         if (error) return res.status(400).send({ err: error.details[0].message })
 
@@ -74,6 +75,8 @@ router.post("/add", async (req, res, err) => {
         return res.send({ status: "Create Album Successfully", err: false })
       }
     }
+    await dataNotValid(files)
+    return res.status(400).send({ msg: "Please send data" })
   })
   // Wait for frontend prac upload without image successfull
 
@@ -91,11 +94,7 @@ router.post("/add", async (req, res, err) => {
 
 router.put("/edit/:id", async (req, res) => {
   let id = Number(req.params.id)
-  /* upload(req, res, async(err) => {
-    if (err) {
-      return res.status(400).send({ msg: err.message })
-    }
-  }) */
+
   upload(req, res, async (err) => {
     if (err) {
       return res.status(400).send({ msg: err.message })
@@ -110,23 +109,34 @@ router.put("/edit/:id", async (req, res) => {
         preview_image: true
       }
     })
+    if (!findedAlbum) {
+      return res.status(400).send({ msg: "Can't find album" })
+    }
 
     let files = req.files
     let imgFile = []
+    if (!files) {
+      return res.status(400).send({ msg: "Please send data with data-form" })
+    }
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.fieldname == 'cover_image' || file.fieldname == 'preview_image') {
-        imgFile.push(file)
+      const file = files[i]
+      if (file.fieldname == 'cover_image') {
         if (findedAlbum.cover_image != "cover_image.jpg") {
-          deleteFile(findedAlbum.cover_image)
+          await deleteFile(findedAlbum.cover_image)
         }
-        if (findedAlbum.cover_image != "preview_image.png") {
-          deleteFile(findedAlbum.preview_image)
+        imgFile.push(file)
+      }
+      if (file.fieldname == 'preview_image') {
+        if (findedAlbum.preview_image != "preview_image.png") {
+          await deleteFile(findedAlbum.preview_image)
         }
+        imgFile.push(file)
       }
       if (file.mimetype == "application/json") {
         let albumData = await readFile(file)
         await deleteFile(file.filename)
+        albumData.cover_image = findedAlbum.cover_image
+        albumData.preview_image = findedAlbum.preview_image
         for (const [index, img] of imgFile.entries()) {
           if (img.fieldname == "cover_image") {
             albumData.cover_image = await img.filename
@@ -135,11 +145,11 @@ router.put("/edit/:id", async (req, res) => {
             albumData.preview_image = await img.filename
           }
         }
-        console.log(albumData)
         const { error } = validateAlbum(albumData)
         if (error) return res.status(400).send({ err: error.details[0].message })
 
         albumData.release_date = new Date(albumData.release_date)
+        console.log(albumData)
         await album.update({
           where: {
             a_id: id
@@ -149,6 +159,8 @@ router.put("/edit/:id", async (req, res) => {
         return res.send({ msg: "Update Successfully" })
       }
     }
+    await dataNotValid(files)
+    return res.status(400).send({ msg: "Please send data" })
   })
 })
 
@@ -164,7 +176,6 @@ router.delete("/delete/:id", async (req, res) => {
   } catch (err) {
     return res.status(400).send({ msg: err.meta.cause })
   }
-  console.log(result)
 
   // Wait for frontend prac upload without image successfull
   /* if (result.cover_image != "default_cover_image.jpg") {

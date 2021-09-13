@@ -24,6 +24,7 @@ module.exports = async (req, res, next) => {
   if (findedUser.ac_role != "admin") {
     return res.status(401).send({ msg: "User not allowed" })
   }
+  delete findedUser.ac_password
   req.account = findedUser
   next()
 }

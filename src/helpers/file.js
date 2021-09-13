@@ -17,5 +17,14 @@ const readFile = async (file) => {
   return fileData
 }
 
+const dataNotValid = async (files) => {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    console.log(file)
+    await deleteFile(file.filename)
+  }
+}
+
 module.exports.deleteFile = deleteFile
 module.exports.readFile = readFile
+module.exports.dataNotValid = dataNotValid

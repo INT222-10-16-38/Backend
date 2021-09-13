@@ -22,9 +22,8 @@ router.post("/add", async (req, res) => {
 
   await favorite.create({
     data: body
-  }).then(() => {
-    return res.send({ status: "Add favorite Successfully", err: false })
   })
+  return res.send({ status: "Add favorite Successfully", err: false })
 })
 
 // When using authen delete userId
@@ -42,7 +41,6 @@ router.delete("/delete/:aid/:uid", async (req, res) => {
       album_a_id: aid
     }
   })
-  console.log(results)
   if (results.count <= 0) {
     return res.status(400).send({ msg: "Can't find Favorite" })
   }
