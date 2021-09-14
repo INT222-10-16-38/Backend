@@ -34,4 +34,14 @@ const upload = multer({
   },
 }).any()
 
-module.exports = upload
+module.exports = async (req, res, next) => {
+  upload(req, res, (err) => {
+    if (err) {
+      return res.status(400)
+    }
+    if (!req.files) {
+      return res.status(400).send({ msg: "Please send data with data-form" })
+    }
+    next()
+  })
+}

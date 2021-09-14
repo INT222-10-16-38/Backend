@@ -27,147 +27,96 @@ router.get("/:id", async (req, res) => {
   }
 })
 
-router.put("/edit", auth, async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).send({ msg: err.message })
-    }
-    let files = req.files
-    let imgFile = []
-    if (!files) {
-      return res.status(400).send({ msg: "Please send data with data-form" })
-    }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.fieldname == 'ac_image') {
-        if (req.account.ac_image != "cover_image.jpg") {
-          await deleteFile(req.account.ac_image)
-        }
-        imgFile.push(file)
+router.put("/edit", upload, auth, async (req, res) => {
+  let files = req.files
+  let imgFile = []
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (file.fieldname == 'ac_image') {
+      if (req.account.ac_image != "cover_image.jpg") {
+        await deleteFile(req.account.ac_image)
       }
-      if (file.mimetype == "application/json") {
-        let accountData = await readFile(file)
-        deleteFile(file.filename)
-        accountData.ac_image = req.account.ac_image
-        for (const [index, img] of imgFile.entries()) {
-          if (img.fieldname == "ac_image") {
-            if (req.account.ac_image != "default_ac_image.png") {
-              await deleteFile(req.account.ac_image)
-            }
-            accountData.ac_image = await img.filename
+      imgFile.push(file)
+    }
+    if (file.mimetype == "application/json") {
+      let accountData = await readFile(file)
+      deleteFile(file.filename)
+      accountData.ac_image = req.account.ac_image
+      for (const [index, img] of imgFile.entries()) {
+        if (img.fieldname == "ac_image") {
+          if (req.account.ac_image != "default_ac_image.png") {
+            await deleteFile(req.account.ac_image)
           }
+          accountData.ac_image = await img.filename
         }
-        const { error } = validateRegister(accountData)
-        if (error) return res.status(400).send({ err: error.details[0].message })
+      }
+      const { error } = validateRegister(accountData)
+      if (error) return res.status(400).send({ err: error.details[0].message })
 
-        await account.update({
-          data: {
-            ac_fname: accountData.ac_fname,
-            ac_lname: accountData.ac_lname,
-            ac_email: accountData.ac_email,
-            ac_image: accountData.ac_image,
-            ac_role: accountData.ac_role,
-          },
-          where: {
-            ac_id: req.account.ac_id
-          }
-        })
-        return res.send({ status: "Edit Account Successfully", err: false })
-      }
+      await account.update({
+        data: {
+          ac_fname: accountData.ac_fname,
+          ac_lname: accountData.ac_lname,
+          ac_email: accountData.ac_email,
+          ac_image: accountData.ac_image,
+          ac_role: accountData.ac_role,
+        },
+        where: {
+          ac_id: req.account.ac_id
+        }
+      })
+      return res.send({ status: "Edit Account Successfully", err: false })
     }
-    await dataNotValid(files)
-    return res.status(400).send({ msg: "Please send data" })
-  })
+  }
+  await dataNotValid(files)
+  return res.status(400).send({ msg: "Please send data" })
 })
 
-router.post("/register", async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).send({ msg: err.message })
+router.post("/register", upload, async (req, res) => {
+  let files = req.files
+  let imgFile = []
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (file.fieldname == 'ac_image') {
+      imgFile.push(file)
     }
-    let files = req.files
-    let imgFile = []
-    if (!files) {
-      return res.status(400).send({ msg: "Please send data with data-form" })
-    }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file.fieldname == 'ac_image') {
-        imgFile.push(file)
-      }
-      if (file.mimetype == "application/json") {
-        let accountData = await readFile(file)
-        deleteFile(file.filename)
-        for (const [index, img] of imgFile.entries()) {
-          if (img.fieldname == "ac_image") {
-            accountData.ac_image = await img.filename
-          }
+    if (file.mimetype == "application/json") {
+      let accountData = await readFile(file)
+      deleteFile(file.filename)
+      for (const [index, img] of imgFile.entries()) {
+        if (img.fieldname == "ac_image") {
+          accountData.ac_image = await img.filename
         }
-        const { error } = validateRegister(accountData)
-        if (error) return res.status(400).send({ err: error.details[0].message })
-
-        // Find with email
-        let userExists = await account.findFirst({
-          where: {
-            OR: [
-              { ac_email: accountData.ac_email },
-              { ac_username: accountData.ac_username }
-            ]
-          }
-        })
-        // Check email if exists throw error
-        if (userExists) {
-          return res.status(400).send({ msg: "User or email already exists" })
-        }
-        // Generate salt and hash password
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(accountData.ac_password, salt)
-        accountData.ac_password = hashedPassword
-
-        await account.create({
-          data: accountData
-        })
-        return res.send({ status: "Create Account Successfully", err: false })
       }
-    }
-    await dataNotValid(files)
-    return res.status(400).send({ msg: "Please send data" })
-  })
-  // let files = req.files
+      const { error } = validateRegister(accountData)
+      if (error) return res.status(400).send({ err: error.details[0].message })
 
-  /* 
-  let body = req.body
-  const { error } = validateRegister(body)
-  if (error) return res.send({ err: error.details[0].message })
- 
-  // Find with email
-  let userExists = await account.findFirst({
-      where: {
+      // Find with email
+      let userExists = await account.findFirst({
+        where: {
           OR: [
-              { ac_email: body.ac_email },
-              { ac_username: body.ac_username }
+            { ac_email: accountData.ac_email },
+            { ac_username: accountData.ac_username }
           ]
+        }
+      })
+      // Check email if exists throw error
+      if (userExists) {
+        return res.status(400).send({ msg: "User or email already exists" })
       }
-  })
- 
-  // Check email if exists throw error
-  if (userExists) {
-      return res.status(400).send({ msg: "User already exists" })
-  }
- 
-  // Generate salt and hash password
-  const salt = await bcrypt.genSalt(10)
-  const hashedPassword = await bcrypt.hash(body.ac_password, salt)
-  body.ac_password = hashedPassword
- 
-  // If Over all ok then create Account
-  await account.create({
-      data: body
-  }).then(() => {
-      return res.send({ status: "Create Account Successfully", err: false })
-  }) 
-  */
+      // Generate salt and hash password
+      const salt = await bcrypt.genSalt(10)
+      const hashedPassword = await bcrypt.hash(accountData.ac_password, salt)
+      accountData.ac_password = hashedPassword
 
+      await account.create({
+        data: accountData
+      })
+      return res.send({ status: "Create Account Successfully", err: false })
+    }
+  }
+  await dataNotValid(files)
+  return res.status(400).send({ msg: "Please send data" })
 })
 
 router.post("/login", async (req, res) => {
