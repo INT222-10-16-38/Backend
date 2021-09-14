@@ -27,3 +27,7 @@ app.use("/api/boards", require("./routes/board"))
 app.use("/api/favorites", require("./routes/favorite"))
 
 app.use("/api/accounts", require("./routes/account"))
+
+let { sendImage } = require("./helpers/file")
+
+app.use("/api/get-image/:image", sendImage)
