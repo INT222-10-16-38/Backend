@@ -3,7 +3,9 @@ const Joi = require("joi")
 const validateArtist = (data) => {
   const schema = Joi.object({
     art_name: Joi.string().min(1).required(),
-    art_type: Joi.string().min(1).required()
+    art_type: Joi.string().min(1).required(),
+    art_image: Joi.string().required(),
+    entertainment_id: Joi.number().required()
   })
   return schema.validate(data)
 }
