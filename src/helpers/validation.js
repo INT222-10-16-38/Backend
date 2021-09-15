@@ -15,7 +15,7 @@ const validateBoard = (data) => {
     b_title: Joi.string().min(1).required(),
     b_caption: Joi.string().min(1).required(),
     b_image: Joi.string().allow(null, ''),
-    account_ac_id: Joi.number().min(1).required()
+    account_id: Joi.number().min(1).required()
   })
   return schema.validate(data)
 }
@@ -28,7 +28,7 @@ const validateAlbum = (data) => {
     description: Joi.string().min(1).required(),
     cover_image: Joi.string().min(1).allow(null, '').required(),
     preview_image: Joi.string().min(1).allow(null, '').required(),
-    artists_art_id: Joi.number().min(1).required(),
+    artists_id: Joi.number().min(1).required(),
   })
   return schema.validate(data)
 }
@@ -41,7 +41,7 @@ const validateRegister = (data) => {
     ac_fname: Joi.string().min(3).required(),
     ac_lname: Joi.string().min(3).required(),
     ac_image: Joi.string().min(3),
-    ac_role: Joi.number().required(),
+    role_id: Joi.number().required(),
   })
   return schema.validate(data)
 }
@@ -56,8 +56,8 @@ const validateLogin = (data) => {
 
 const validateFavorite = (data) => {
   const schema = Joi.object({
-    album_a_id: Joi.number().min(1).required(),
-    account_ac_id: Joi.number().min(1).required(),
+    album_id: Joi.number().min(1).required(),
+    account_id: Joi.number().min(1).required(),
   })
   return schema.validate(data)
 }
