@@ -62,9 +62,20 @@ const validateFavorite = (data) => {
   return schema.validate(data)
 }
 
+const validateEntertainment = (data) => {
+  const schema = Joi.object({
+    e_name: Joi.string().required(),
+    e_description: Joi.string().required(),
+    e_foundingdate: Joi.date().required(),
+    e_logo: Joi.string().required()
+  })
+  return schema.validate(data)
+}
+
 module.exports.validateArtist = validateArtist
 module.exports.validateBoard = validateBoard
 module.exports.validateAlbum = validateAlbum
 module.exports.validateRegister = validateRegister
 module.exports.validateLogin = validateLogin
 module.exports.validateFavorite = validateFavorite
+module.exports.validateEntertainment = validateEntertainment

@@ -49,19 +49,44 @@ router.post("/add", upload, async (req, res) => {
   }
 })
 
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", upload, async (req, res) => {
   let id = Number(req.params.id)
-  let body = req.body
-  const { error } = validateArtist(body)
-  if (error) return res.send({ err: error.details[0].message })
-
-  let result = await artists.update({
-    data: body,
+  let files = req.files
+  let imgFile = []
+  let findedArtist = await artists.findFirst({
     where: {
       art_id: id
+    },
+    select: {
+      art_image: true
     }
   })
-  return res.send({ msg: "Update Successfully", data: result })
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    if (file.fieldname == 'art_image') {
+      imgFile.push(file)
+    }
+    if (file.mimetype == "application/json") {
+      let body = await readFile(file)
+      await deleteFile(file.filename)
+      body.art_image = findedArtist.art_image
+      for (const [index, img] of imgFile.entries()) {
+        if (img.fieldname == "art_image") {
+          body.art_image = await img.filename
+        }
+      }
+      const { error } = validateArtist(body)
+      if (error) return res.send({ err: error.details[0].message })
+      let result = await artists.update({
+        data: body,
+        where: {
+          art_id: id
+        }
+      })
+      return res.send({ msg: "Update Successfully", data: result })
+    }
+
+  }
 })
 
 router.delete("/delete/:id", async (req, res) => {
