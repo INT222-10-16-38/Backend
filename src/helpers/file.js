@@ -28,7 +28,12 @@ const dataNotValid = async (files) => {
 const sendImage = async (req, res, next) => {
   let imageFile = req.params.image
   let pathFile = path.join(__dirname, `../../uploads/${imageFile}`)
-  return res.sendFile(pathFile)
+  try {
+    await fs.readFile(pathFile)
+    return res.sendFile(pathFile)
+  } catch (error) {
+    return res.status(400).send({ msg: error.message })
+  }
 }
 
 module.exports.deleteFile = deleteFile

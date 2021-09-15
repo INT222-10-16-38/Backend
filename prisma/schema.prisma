@@ -9,36 +9,41 @@ datasource db {
 }
 
 model artists {
-  art_id   Int     @id @default(autoincrement())
-  art_name String  @db.VarChar(45)
-  art_type String  @db.VarChar(45)
-  album    album[]
+  art_id           Int           @id @default(autoincrement())
+  art_name         String        @db.VarChar(45)
+  art_type         String        @db.VarChar(45)
+  art_image        String
+  entertainment_id Int
+  entertainment    entertainment @relation(fields: [entertainment_id], references: [e_id], onDelete: Cascade, onUpdate: NoAction)
+  album            album[]
+
+  @@index([entertainment_id], name: "fk_artists_entertainment1_idx")
 }
 
 model board {
-  b_id          Int     @id @default(autoincrement())
-  b_title       String  @db.VarChar(100)
-  b_caption     String  @db.VarChar(1000)
-  b_image       String? @db.VarChar(2000)
-  account_ac_id Int
-  account       account @relation(fields: [account_ac_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
+  b_id       Int     @id @default(autoincrement())
+  b_title    String  @db.VarChar(100)
+  b_caption  String  @db.VarChar(1000)
+  b_image    String? @db.VarChar(2000)
+  account_id Int
+  account    account @relation(fields: [account_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([account_ac_id], name: "fk_board_account1_idx")
+  @@index([account_id], name: "fk_board_account1_idx")
 }
 
 model album {
-  a_id           Int        @id @default(autoincrement())
-  a_name         String     @db.VarChar(45)
-  price          Decimal    @db.Decimal(6, 2)
-  description    String     @db.VarChar(2000)
-  release_date   DateTime   @db.Date
-  cover_image    String     @db.VarChar(2000)
-  preview_image  String     @db.VarChar(2000)
-  artists_art_id Int
-  artists        artists    @relation(fields: [artists_art_id], references: [art_id], onDelete: Cascade, onUpdate: NoAction)
-  favorite       favorite[]
+  a_id          Int        @id @default(autoincrement())
+  a_name        String     @db.VarChar(45)
+  price         Decimal    @db.Decimal(6, 2)
+  description   String     @db.VarChar(2000)
+  release_date  DateTime   @db.Date
+  cover_image   String     @db.VarChar(2000)
+  preview_image String     @db.VarChar(2000)
+  artists_id    Int
+  artists       artists    @relation(fields: [artists_id], references: [art_id], onDelete: Cascade, onUpdate: NoAction)
+  favorite      favorite[]
 
-  @@index([artists_art_id], name: "fk_album_artists_idx")
+  @@index([artists_id], name: "fk_album_artists_idx")
 }
 
 model account {
@@ -49,18 +54,36 @@ model account {
   ac_fname    String     @db.VarChar(45)
   ac_lname    String     @db.VarChar(45)
   ac_image    String     @db.VarChar(2000)
-  ac_role     String?    @db.VarChar(45)
+  role_id     Int
+  role        role       @relation(fields: [role_id], references: [role_id], onDelete: Cascade, onUpdate: NoAction)
   board       board[]
   favorte     favorite[]
+
+  @@index([role_id], name: "fk_account_role1_idx")
 }
 
 model favorite {
-  fav_id        Int     @id @default(autoincrement())
-  album_a_id    Int
-  account_ac_id Int
-  account       account @relation(fields: [account_ac_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
-  album         album   @relation(fields: [album_a_id], references: [a_id], onDelete: Cascade, onUpdate: NoAction)
+  fav_id     Int     @id @default(autoincrement())
+  album_id   Int
+  account_id Int
+  account    account @relation(fields: [account_id], references: [ac_id], onDelete: Cascade, onUpdate: NoAction)
+  album      album   @relation(fields: [album_id], references: [a_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([account_ac_id], name: "fk_album_has_account_account1_idx")
-  @@index([album_a_id], name: "fk_album_has_account_album1_idx")
+  @@index([account_id], name: "fk_album_has_account_account1_idx")
+  @@index([album_id], name: "fk_album_has_account_album1_idx")
+}
+
+model entertainment {
+  e_id           Int       @id @default(autoincrement())
+  e_name         String    @db.VarChar(45)
+  e_description  String    @db.VarChar(500)
+  e_foundingdate DateTime  @db.Date
+  e_logo         String    @db.VarChar(45)
+  artists        artists[]
+}
+
+model role {
+  role_id   Int       @id @unique @default(autoincrement())
+  role_name String    @db.VarChar(45)
+  account   account[]
 }

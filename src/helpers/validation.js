@@ -39,7 +39,7 @@ const validateRegister = (data) => {
     ac_fname: Joi.string().min(3).required(),
     ac_lname: Joi.string().min(3).required(),
     ac_image: Joi.string().min(3),
-    ac_role: Joi.string().min(3),
+    ac_role: Joi.number().required(),
   })
   return schema.validate(data)
 }
