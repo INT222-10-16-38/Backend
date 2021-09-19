@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 
 // If want more image you can adding another if field
 let changeNameOfFile = (file) => {
-  const newFileName = `${randomString.generate(15)}_${Date.now()}${path.extname(file.originalname)}`
+  const newFileName = `${randomString.generate(10)}_${Date.now()}${path.extname(file.originalname)}`
   return newFileName
 }
 

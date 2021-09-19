@@ -38,7 +38,7 @@ router.post("/add", upload, async (req, res) => {
   let files = req.files
   let imgFile = []
   let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
+    if (file.mimetype != "application/json") {
       imgFile.push(file)
     }
     return file.mimetype == "application/json"
@@ -47,11 +47,11 @@ router.post("/add", upload, async (req, res) => {
     await dataNotValid(files)
     return res.status(400).send({ msg: `Please send jsonData` })
   }
-  let body = await readFile(file)
+  let body = await readFile(jsonFile)
   console.log(body)
-  await deleteFile(file.filename)
+  await deleteFile(jsonFile.filename)
   for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "e_logo") {
+    if (img.fieldname == "e_image") {
       body.e_logo = await img.filename
     }
   }
@@ -83,7 +83,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     }
   })
   let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
+    if (file.mimetype != "application/json") {
       imgFile.push(file)
     }
     return file.mimetype == "application/json"
@@ -116,6 +116,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     return res.status(400).send(error.message)
   }
   if (result) {
+    console.log(imgFile)
     for (const [index, img] of imgFile.entries()) {
       if (findedEntertainment.e_logo != "preview_logo.png") {
         await deleteFile(findedEntertainment.e_logo)

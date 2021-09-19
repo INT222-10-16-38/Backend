@@ -43,7 +43,7 @@ router.post("/add", upload, async (req, res) => {
   let files = req.files
   let imgFile = []
   let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
+    if (file.mimetype != "application/json") {
       imgFile.push(file)
     }
     return file.mimetype == "application/json"
@@ -92,7 +92,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     return res.status(400).send({ msg: "Please send data with data-form" })
   }
   let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
+    if (file.mimetype != "application/json") {
       imgFile.push(file)
     }
     return file.mimetype == "application/json"

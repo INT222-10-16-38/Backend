@@ -91,8 +91,11 @@ router.patch("/edit", upload, auth, async (req, res) => {
   deleteFile(jsonFile.filename)
   accountData.ac_image = req.account.ac_image
   for (const [index, img] of imgFile.entries()) {
-    accountData.ac_image = await img.filename
+    if (img.fieldname == "ac_image") {
+      accountData.ac_image = await img.filename
+    }
   }
+  console.log(accountData)
   const { error } = validateRegister(accountData)
   if (error) return res.status(400).send({ err: error.details[0].message })
 
@@ -111,6 +114,7 @@ router.patch("/edit", upload, auth, async (req, res) => {
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
       if (req.account.ac_image != "default_ac_image.png") {
+        console.log(index)
         await deleteFile(req.account.ac_image)
       }
     }
