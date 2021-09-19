@@ -19,37 +19,37 @@ router.get("/", async (req, res) => {
 router.post('/add', upload, async (req, res) => {
   let files = req.files
   let imgFile = []
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (file.fieldname == 'b_image') {
+  let jsonFile = files.find((file) => {
+    if (!file.mimetype != "application/json") {
       imgFile.push(file)
     }
-    if (file.mimetype == "application/json") {
-      let boardData = await readFile(file)
-      deleteFile(file.filename)
-      for (const [index, img] of imgFile.entries()) {
-        if (img.fieldname == "b_image") {
-          boardData.b_image = await img.filename
-        }
-      }
-      const { error } = validateBoard(boardData)
-      if (error) return res.status(400).send({ err: error.details[0].message })
-
-      try {
-        await board.create({
-          data: boardData
-        })
-      } catch (error) {
-        if (error.code == 'P2003') {
-          console.log(error.message)
-          return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
-        }
-      }
-      return res.send({ status: "Create Board Successfully", err: false })
+    return file.mimetype == "application/json"
+  })
+  if (!jsonFile) {
+    await dataNotValid(files)
+    return res.status(400).send({ msg: `Please send jsonData` })
+  }
+  let boardData = await readFile(jsonFile)
+  deleteFile(jsonFile.filename)
+  for (const [index, img] of imgFile.entries()) {
+    if (img.fieldname == "b_image") {
+      boardData.b_image = await img.filename
     }
   }
-  await dataNotValid(files)
-  return res.status(400).send({ msg: "Please send data" })
+  const { error } = validateBoard(boardData)
+  if (error) return res.status(400).send({ err: error.details[0].message })
+
+  try {
+    await board.create({
+      data: boardData
+    })
+  } catch (error) {
+    if (error.code == 'P2003') {
+      console.log(error.message)
+      return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
+    }
+  }
+  return res.send({ status: "Create Board Successfully", err: false })
 })
 
 router.put("/edit/:id", upload, async (req, res) => {
@@ -69,46 +69,51 @@ router.put("/edit/:id", upload, async (req, res) => {
 
   let files = req.files
   let imgFile = []
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (file.fieldname == 'b_image') {
+  let jsonFile = files.find((file) => {
+    if (!file.mimetype != "application/json") {
       imgFile.push(file)
-      if (findedBoard) {
-        deleteFile(findedBoard.b_image)
-      }
     }
-    if (file.mimetype == "application/json") {
-      let boardData = await readFile(file)
-      deleteFile(file.filename)
-      if (!findedBoard.b_image) {
-        findedBoard.b_image = ""
-      }
-      boardData.b_image = findedBoard.b_image
-      for (const [index, img] of imgFile.entries()) {
-        if (img.fieldname == "b_image") {
-          boardData.b_image = await img.filename
-        }
-      }
-      const { error } = validateBoard(boardData)
-      if (error) return res.status(400).send({ err: error.details[0].message })
-
-      try {
-        await board.update({
-          where: {
-            b_id: id
-          },
-          data: boardData
-        })
-      } catch (error) {
-        if (error.code == 'P2003') {
-          return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
-        }
-      }
-      return res.send({ status: "Update Board Successfully", err: false })
+    return file.mimetype == "application/json"
+  })
+  if (!jsonFile) {
+    await dataNotValid(files)
+    return res.status(400).send({ msg: `Please send jsonData` })
+  }
+  let boardData = await readFile(file)
+  deleteFile(file.filename)
+  if (!findedBoard.b_image) {
+    findedBoard.b_image = ""
+  }
+  boardData.b_image = findedBoard.b_image
+  for (const [index, img] of imgFile.entries()) {
+    if (img.fieldname == "b_image") {
+      boardData.b_image = await img.filename
     }
   }
-  await dataNotValid(files)
-  return res.status(400).send({ msg: "Please send data" })
+  const { error } = validateBoard(boardData)
+  if (error) return res.status(400).send({ err: error.details[0].message })
+
+  let updateResult
+  try {
+    updateResult = await board.update({
+      where: {
+        b_id: id
+      },
+      data: boardData
+    })
+  } catch (error) {
+    if (error.code == 'P2003') {
+      return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
+    }
+  }
+  if (updateResult) {
+    for (const [index, img] of imgFile.entries()) {
+      if (findedBoard.b_image != "") {
+        await deleteFile(findedBoard.b_image)
+      }
+    }
+  }
+  return res.send({ status: "Update Board Successfully", err: false })
 })
 
 router.delete("/delete/:id", async (req, res) => {

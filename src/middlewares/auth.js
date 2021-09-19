@@ -8,22 +8,23 @@ module.exports = async (req, res, next) => {
     return res.status(401).send({ msg: "Please send token" })
   }
 
-  const decode = jwt.verify(token, process.env.TOKEN_SECRET)
-  if (!decode) {
-    return res.status(401).send({ msg: "Invalid token" })
-  }
-
-  const findedUser = await account.findFirst({
-    where: {
-      ac_id: decode.id
-    },
-  })
+  /*  const decode = jwt.verify(token, process.env.TOKEN_SECRET)
+   if (!decode) {
+     return res.status(401).send({ msg: "Invalid token" })
+   }
+ 
+   const findedUser = await account.findFirst({
+     where: {
+       ac_id: decode.id
+     },
+   }) */
+  const findedUser = jwt.verify(token, process.env.TOKEN_SECRET)
   if (!findedUser) {
     return res.status(401).send({ msg: "Please Login again" })
   }
-/*   if (findedUser.ac_role != "admin") {
-    return res.status(401).send({ msg: "User not allowed" })
-  } */
+  /*   if (findedUser.ac_role != "admin") {
+      return res.status(401).send({ msg: "User not allowed" })
+    } */
   delete findedUser.ac_password
   req.account = findedUser
   next()

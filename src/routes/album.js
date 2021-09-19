@@ -124,10 +124,10 @@ router.put("/edit/:id", upload, async (req, res) => {
   })
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
-      if (img.fieldname == "cover_image") {
+      if (findedAlbum.cover_image == "cover_image") {
         deleteFile(findedAlbum.cover_image)
       }
-      if (img.fieldname == "preview_image") {
+      if (findedAlbum.cover_image == "preview_image") {
         deleteFile(findedAlbum.preview_image)
       }
     }
