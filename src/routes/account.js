@@ -144,7 +144,7 @@ router.post("/login", async (req, res) => {
 
 
   // When HTTPS delete tokenJSON response
-  return res.cookie("token", token).send({ msg: "Login Successfully", token: token })
+  return res.cookie("token", token, { sameSite: "none", secure: true }).send({ msg: "Login Successfully", token: token })
 })
 
 router.delete("/delete/:id", async (req, res) => {
