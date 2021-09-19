@@ -42,38 +42,34 @@ router.get("/:id", async (req, res) => {
 router.post("/add", upload, async (req, res) => {
   let files = req.files
   let imgFile = []
-
-  // Loop files and check files[i] is image or file
-  // If image push to array imgFile
-  // If JSON Data read and write to database
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (file.fieldname == 'cover_image' || file.fieldname == 'preview_image') {
+  let jsonFile = files.find((file) => {
+    if (!file.mimetype != "application/json") {
       imgFile.push(file)
     }
-    if (file.mimetype == "application/json") {
-      let albumData = await readFile(file)
-      await deleteFile(file.filename)
-      for (const [index, img] of imgFile.entries()) {
-        if (img.fieldname == "cover_image") {
-          albumData.cover_image = await img.filename
-        }
-        if (img.fieldname == "preview_image") {
-          albumData.preview_image = await img.filename
-        }
-      }
-      const { error } = validateAlbum(albumData)
-      if (error) return res.status(400).send({ err: error.details[0].message })
-
-      albumData.release_date = new Date(albumData.release_date)
-      await album.create({
-        data: albumData
-      })
-      return res.send({ status: "Create Album Successfully", err: false })
+    return file.mimetype == "application/json"
+  })
+  if (!jsonFile) {
+    await dataNotValid(files)
+    return res.status(400).send({ msg: `Please send jsonData` })
+  }
+  let albumData = await readFile(jsonFile)
+  await deleteFile(jsonFile.filename)
+  for (const [index, img] of imgFile.entries()) {
+    if (img.fieldname == "cover_image") {
+      albumData.cover_image = await img.filename
+    }
+    if (img.fieldname == "preview_image") {
+      albumData.preview_image = await img.filename
     }
   }
-  await dataNotValid(files)
-  return res.status(400).send({ msg: "Please send JSON data" })
+  const { error } = validateAlbum(albumData)
+  if (error) return res.status(400).send({ err: error.details[0].message })
+
+  albumData.release_date = new Date(albumData.release_date)
+  await album.create({
+    data: albumData
+  })
+  return res.send({ status: "Create Album Successfully", err: false })
 })
 
 router.put("/edit/:id", upload, async (req, res) => {
@@ -95,49 +91,48 @@ router.put("/edit/:id", upload, async (req, res) => {
   if (!files) {
     return res.status(400).send({ msg: "Please send data with data-form" })
   }
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    if (file.fieldname == 'cover_image') {
-      if (findedAlbum.cover_image != "cover_image.jpg") {
-        await deleteFile(findedAlbum.cover_image)
-      }
+  let jsonFile = files.find((file) => {
+    if (!file.mimetype != "application/json") {
       imgFile.push(file)
     }
-    if (file.fieldname == 'preview_image') {
-      if (findedAlbum.preview_image != "preview_image.png") {
-        await deleteFile(findedAlbum.preview_image)
-      }
-      imgFile.push(file)
+    return file.mimetype == "application/json"
+  })
+  if (!jsonFile) {
+    await dataNotValid(files)
+    return res.status(400).send({ msg: `Please send jsonData` })
+  }
+  let albumData = await readFile(jsonFile)
+  await deleteFile(jsonFile.filename)
+  albumData.cover_image = findedAlbum.cover_image
+  albumData.preview_image = findedAlbum.preview_image
+  for (const [index, img] of imgFile.entries()) {
+    if (img.fieldname == "cover_image") {
+      albumData.cover_image = await img.filename
     }
-    if (file.mimetype == "application/json") {
-      let albumData = await readFile(file)
-      await deleteFile(file.filename)
-      albumData.cover_image = findedAlbum.cover_image
-      albumData.preview_image = findedAlbum.preview_image
-      for (const [index, img] of imgFile.entries()) {
-        if (img.fieldname == "cover_image") {
-          albumData.cover_image = await img.filename
-        }
-        if (img.fieldname == "preview_image") {
-          albumData.preview_image = await img.filename
-        }
-      }
-      const { error } = validateAlbum(albumData)
-      if (error) return res.status(400).send({ err: error.details[0].message })
-
-      albumData.release_date = new Date(albumData.release_date)
-      console.log(albumData)
-      await album.update({
-        where: {
-          a_id: id
-        },
-        data: albumData
-      })
-      return res.send({ msg: "Update Successfully" })
+    if (img.fieldname == "preview_image") {
+      albumData.preview_image = await img.filename
     }
   }
-  await dataNotValid(files)
-  return res.status(400).send({ msg: "Please send JSON data" })
+  const { error } = validateAlbum(albumData)
+  if (error) return res.status(400).send({ err: error.details[0].message })
+  albumData.release_date = new Date(albumData.release_date)
+  let updateResult = await album.update({
+    where: {
+      a_id: id
+    },
+    data: albumData
+  })
+  if (updateResult) {
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "cover_image") {
+        deleteFile(findedAlbum.cover_image)
+      }
+      if (img.fieldname == "preview_image") {
+        deleteFile(findedAlbum.preview_image)
+      }
+    }
+  }
+  return res.send({ msg: "Update Successfully" })
 })
 
 router.delete("/delete/:id", async (req, res) => {
