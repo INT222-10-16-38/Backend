@@ -4,16 +4,33 @@ const { validateBoard } = require("../helpers/validation")
 const upload = require("../middlewares/uploadFile")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 
+const calSkip = (page) => {
+  return (page - 1) * 6
+}
+
+const calPage = (numberOfItem) => {
+  return Math.ceil(numberOfItem / 6)
+}
+
 router.get("/", async (req, res) => {
   await board.findMany({
     include: {
       account: true
     }
   }).then((results) => {
-    return res.send({ data: results })
+    return res.send({ data: results, totalPage: calPage(results.length) })
   }).catch((err) => {
     return res.send({ status: "Can't get data", error: err })
   })
+})
+
+router.get("/page/:page", async (req, res) => {
+  let page = Number(req.params.page)
+  let results = await board.findMany({
+    skip: calSkip(page),
+    take: 6
+  })
+  return res.send({ data: results, page: page })
 })
 
 router.post('/add', upload, async (req, res) => {

@@ -12,7 +12,7 @@ model artists {
   art_id           Int           @id @default(autoincrement())
   art_name         String        @db.VarChar(45)
   art_type         String        @db.VarChar(45)
-  art_image        String
+  art_image        String        @db.VarChar(500)
   entertainment_id Int
   entertainment    entertainment @relation(fields: [entertainment_id], references: [e_id], onDelete: Cascade, onUpdate: NoAction)
   album            album[]
@@ -78,7 +78,7 @@ model entertainment {
   e_name         String    @db.VarChar(45)
   e_description  String    @db.VarChar(500)
   e_foundingdate DateTime  @db.Date
-  e_logo         String    @db.VarChar(45)
+  e_logo         String    @db.VarChar(500)
   artists        artists[]
 }
 

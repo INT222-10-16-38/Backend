@@ -4,6 +4,14 @@ const { album } = require("../models/model")
 const { validateAlbum } = require("../helpers/validation")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 
+const calSkip = (page) => {
+  return (page - 1) * 20
+}
+
+const calPage = (numberOfItem) => {
+  return Math.ceil(numberOfItem / 20)
+}
+
 router.get("/", async (req, res) => {
   let results
   try {
@@ -13,9 +21,19 @@ router.get("/", async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(400).send({ msg: err.meta.cause })
+    console.log(error)
+    return res.status(400).send({ msg: error.meta })
   }
-  return res.send({ data: results })
+  return res.send({ data: results, totalPage: calPage(results.length) })
+})
+
+router.get("/page/:page", async (req, res) => {
+  let page = Number(req.params.page)
+  let results = await album.findMany({
+    skip: calSkip(page),
+    take: 20
+  })
+  return res.send({ data: results, page: page })
 })
 
 router.get("/:id", async (req, res) => {
