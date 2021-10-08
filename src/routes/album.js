@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     console.log(error)
     return res.status(400).send({ msg: error.meta })
   }
-  return res.send({ data: results, totalPage: calPage(results.length) })
+  return res.send({ data: results, totalPage: calPage(results.length,20) })
 })
 
 router.get("/page/:page", async (req, res) => {
@@ -27,7 +27,8 @@ router.get("/page/:page", async (req, res) => {
     skip: calSkip(page, numberOfItem),
     take: numberOfItem
   })
-  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
+  const totalAlbum = await album.count()
+  return res.send({ data: results, page: page, totalPage: calPage(totalAlbum, numberOfItem) })
 })
 
 router.get("/:id", async (req, res) => {

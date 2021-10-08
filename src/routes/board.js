@@ -24,7 +24,9 @@ router.get("/page/:page", async (req, res) => {
     skip: calSkip(page, numberOfItem),
     take: numberOfItem
   })
-  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
+  const totalBoard = await board.count()
+  console.log(totalBoard)
+  return res.send({ data: results, page: page, totalPage: calPage(totalBoard, numberOfItem) })
 })
 
 router.post('/add', upload, async (req, res) => {

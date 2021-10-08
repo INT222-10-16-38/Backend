@@ -23,7 +23,8 @@ router.get("/page/:page", async (req, res) => {
     skip: calSkip(page, numberOfItem),
     select: numberOfItem
   })
-  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
+  const totalAccount = await account.count()
+  return res.send({ data: results, page: page, totalPage: calPage(totalAccount, numberOfItem) })
 })
 
 router.get("/:id", async (req, res) => {
