@@ -1,18 +1,29 @@
 const router = require("express").Router()
-const { account } = require("../models/model")
+const { account, token } = require("../models/model")
 const { validateRegister, validateLogin } = require("../helpers/validation")
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
 const upload = require("../middlewares/uploadFile")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 const auth = require("../middlewares/auth")
+const { calPage, calSkip } = require('../helpers/pagination');
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   await account.findMany().then((results) => {
     return res.send({ data: results })
   }).catch((err) => {
     return res.send({ status: "Can't get data", error: err })
   })
+})
+
+router.get("/page/:page", async (req, res) => {
+  let page = Number(req.params.page)
+  let numberOfItem = 20
+  let results = await account.findMany({
+    skip: calSkip(page, numberOfItem),
+    select: numberOfItem
+  })
+  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
 })
 
 router.get("/:id", async (req, res) => {
@@ -162,6 +173,15 @@ router.delete("/delete/:id", async (req, res) => {
   }
   console.log(result)
   return res.send({ msg: "Delete Successfully" })
+})
+
+router.post("/logout", auth, async (req, res) => {
+  await token.create({
+    data: {
+      token: req.token
+    }
+  })
+  return res.send({ msg: "Logout Successfull" })
 })
 
 module.exports = router

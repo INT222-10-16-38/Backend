@@ -3,14 +3,7 @@ const upload = require("../middlewares/uploadFile")
 const { album } = require("../models/model")
 const { validateAlbum } = require("../helpers/validation")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
-
-const calSkip = (page) => {
-  return (page - 1) * 20
-}
-
-const calPage = (numberOfItem) => {
-  return Math.ceil(numberOfItem / 20)
-}
+const { calPage, calSkip } = require('../helpers/pagination');
 
 router.get("/", async (req, res) => {
   let results
@@ -29,11 +22,12 @@ router.get("/", async (req, res) => {
 
 router.get("/page/:page", async (req, res) => {
   let page = Number(req.params.page)
+  let numberOfItem = 20
   let results = await album.findMany({
-    skip: calSkip(page),
-    take: 20
+    skip: calSkip(page, numberOfItem),
+    take: numberOfItem
   })
-  return res.send({ data: results, page: page })
+  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
 })
 
 router.get("/:id", async (req, res) => {

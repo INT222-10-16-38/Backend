@@ -87,3 +87,8 @@ model role {
   role_name String    @db.VarChar(45)
   account   account[]
 }
+
+model token {
+  token_id Int    @id @default(autoincrement())
+  token    String @db.VarChar(500)
+}

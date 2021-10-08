@@ -3,14 +3,7 @@ const { board } = require("../models/model")
 const { validateBoard } = require("../helpers/validation")
 const upload = require("../middlewares/uploadFile")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
-
-const calSkip = (page) => {
-  return (page - 1) * 6
-}
-
-const calPage = (numberOfItem) => {
-  return Math.ceil(numberOfItem / 6)
-}
+const { calPage, calSkip } = require('../helpers/pagination');
 
 router.get("/", async (req, res) => {
   await board.findMany({
@@ -26,11 +19,12 @@ router.get("/", async (req, res) => {
 
 router.get("/page/:page", async (req, res) => {
   let page = Number(req.params.page)
+  let numberOfItem = 6
   let results = await board.findMany({
-    skip: calSkip(page),
-    take: 6
+    skip: calSkip(page, numberOfItem),
+    take: numberOfItem
   })
-  return res.send({ data: results, page: page })
+  return res.send({ data: results, page: page, totalPage: calPage(results.length, numberOfItem) })
 })
 
 router.post('/add', upload, async (req, res) => {
