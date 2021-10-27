@@ -10,7 +10,7 @@ const { calPage, calSkip } = require('../helpers/pagination');
 
 router.get("/", auth, async (req, res) => {
   await account.findMany().then((results) => {
-    return res.send({ data: results })
+    return res.send({ data: results, loginAs: req.account })
   }).catch((err) => {
     return res.send({ status: "Can't get data", error: err })
   })
@@ -137,7 +137,7 @@ router.patch("/edit", upload, auth, async (req, res) => {
 router.post("/login", async (req, res) => {
   let body = req.body
   const { error } = validateLogin(body)
-  if (error) return res.send({ err: error.details[0].message })
+  if (error) return res.status(400).send({ err: error.details[0].message })
 
   const findedUser = await account.findFirst({
     where: {
@@ -155,9 +155,7 @@ router.post("/login", async (req, res) => {
   delete findedUser.ac_password
   // Create TOKEN
   const token = jwt.sign(findedUser, process.env.TOKEN_SECRET)
-
-  // When HTTPS delete tokenJSON response
-  return res.cookie("token", token, { sameSite: "none" }).send({ msg: "Login Successfully", token: token })
+  return res.send({ msg: "Login Successfully", token: token })
 })
 
 router.delete("/delete/:id", async (req, res) => {
@@ -172,7 +170,6 @@ router.delete("/delete/:id", async (req, res) => {
   } catch (err) {
     return res.status(400).send({ err: err.meta.cause })
   }
-  console.log(result)
   return res.send({ msg: "Delete Successfully" })
 })
 
