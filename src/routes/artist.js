@@ -5,20 +5,35 @@ const { readFile, dataNotValid, deleteFile } = require("../helpers/file")
 const upload = require("../middlewares/uploadFile")
 
 router.get("/", async (req, res) => {
-  await artists.findMany().then((results) => {
-    return res.send({ data: results })
-  })
+  let results
+  try {
+    results = await artists.findMany({
+      include: {
+        entertainment: true
+      }
+    })
+  } catch (error) {
+    return res.status(401).send({ msg: error.message })
+  }
+  return res.send({ data: results })
 })
 
 router.get("/:id", async (req, res) => {
   let id = Number(req.params.id)
-  await artists.findMany({
-    where: {
-      art_id: id
-    }
-  }).then((result) => {
-    return res.send({ data: result })
-  })
+  let results
+  try {
+    results = await artists.findMany({
+      where: {
+        art_id: id
+      },
+      include: {
+        entertainment: true
+      }
+    })
+  } catch (error) {
+    return res.status(401).send({ msg: error.message })
+  }
+  return res.send({ data: results })
 })
 
 router.post("/add", upload, async (req, res) => {
