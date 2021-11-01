@@ -2,7 +2,6 @@ const fs = require("fs/promises")
 const path = require("path")
 
 const deleteFile = async (fileName) => {
-  // path.join(__dirname, "..")
   try {
     let pathDelete = path.join(__dirname, `../../uploads/${fileName}`)
     await fs.unlink(pathDelete)

@@ -1,15 +1,15 @@
 const jwt = require("jsonwebtoken")
 const { PrismaClient } = require("@prisma/client")
-const { token } = new PrismaClient()
+const { blacklistToken } = new PrismaClient()
 
 module.exports = async (req, res, next) => {
   const receiveToken = req.headers['authorization']
   const splitBearer = receiveToken.split(' ')
   const useToken = splitBearer[1]
 
-  const isExpired = await token.findFirst({
+  const blackListToken = await blacklistToken.findFirst({
     where: {
-      token: useToken
+      token: receiveToken
     }
   })
 
@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
     return res.status(401).send({ msg: "Please send token" })
   }
 
-  if (isExpired) {
+  if (blackListToken) {
     return res.status(401).send({ msg: "Please login again" })
   }
 
@@ -34,6 +34,15 @@ module.exports = async (req, res, next) => {
 
   delete findedUser.ac_password
   req.account = findedUser
+  switch (req.account.role_id) {
+    case 1:
+      req.account.role = "Admin"
+      break
+    case 2:
+      req.account.role = "User"
+      break
+  }
+  delete req.account.role_id
   req.token = receiveToken
   next()
 }

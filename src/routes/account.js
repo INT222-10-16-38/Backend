@@ -1,15 +1,19 @@
 const router = require("express").Router()
-const { account, token } = require("../models/model")
+const { account, blacklistToken } = require("../models/model")
 const { validateRegister, validateLogin } = require("../helpers/validation")
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
 const upload = require("../middlewares/uploadFile")
 const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 const auth = require("../middlewares/auth")
+const checkAdmin = require("../middlewares/checkAdmin")
 const { calPage, calSkip } = require('../helpers/pagination');
 
-router.get("/", auth, async (req, res) => {
+router.get("/", auth, checkAdmin, async (req, res) => {
   await account.findMany().then((results) => {
+    if (req.account.role_id == 1) {
+      req.account.role = "Admin"
+    }
     return res.send({ data: results, loginAs: req.account })
   }).catch((err) => {
     return res.send({ status: "Can't get data", error: err })
@@ -174,7 +178,7 @@ router.delete("/delete/:id", async (req, res) => {
 })
 
 router.post("/logout", auth, async (req, res) => {
-  await token.create({
+  await blacklistToken.create({
     data: {
       token: req.token
     }

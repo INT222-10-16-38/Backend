@@ -88,7 +88,7 @@ model role {
   account   account[]
 }
 
-model token {
+model blacklistToken {
   token_id Int    @id @default(autoincrement())
   token    String @db.VarChar(500)
 }
