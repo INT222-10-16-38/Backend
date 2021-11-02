@@ -15,9 +15,9 @@ router.get("/", async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    return res.status(400).send({ msg: error.meta })
+    return res.status(400).send({ status: "Can't get data", msg: error.meta })
   }
-  return res.send({ data: results, totalPage: calPage(results.length,20) })
+  return res.send({ data: results, totalPage: calPage(results.length, 20) })
 })
 
 router.get("/page/:page", async (req, res) => {
