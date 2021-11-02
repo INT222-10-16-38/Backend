@@ -29,11 +29,11 @@ jobs:
           echo TOKEN_SECRET=${{ secrets.SECRET_TOKEN }} >> .env
           ls -a
       - name: Build Docker image
-        run : docker build . --file Dockerfile --tag ghcr.io/karnkm/backend222-app:latest
+        run : docker build . --file Dockerfile --tag ghcr.io/karnkm/backend222-prd:latest
       - name : Push Docker image to registry
         run : |
           docker images
-          docker push ghcr.io/karnkm/backend222-app:latest
+          docker push ghcr.io/karnkm/backend222-prd:latest
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
           script: |
             docker ps 
             docker rm -f be
-            docker pull ghcr.io/karnkm/backend222-app:latest
+            docker pull ghcr.io/karnkm/backend222-prd:latest
             docker images
             docker-compose up -d
             docker ps -a
