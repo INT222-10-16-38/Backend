@@ -20,12 +20,11 @@ router.get("/:id", async (req, res) => {
   let id = Number(req.params.id)
   try {
     result = await entertainment.findFirst({
+      where: {
+        e_id: id
+      },
       include: {
-        artists: {
-          where: {
-            entertainment_id: id
-          }
-        }
+        artists: true
       }
     })
     return res.send({ data: result })
