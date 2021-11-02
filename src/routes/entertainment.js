@@ -7,12 +7,11 @@ const { validateEntertainment } = require("../helpers/validation")
 router.get("/", async (req, res) => {
   let result
   try {
-    console.log("Let try")
     result = await entertainment.findMany()
-    return res.send({ data: result })
   } catch (err) {
     return res.status(400).send({ msg: err.message })
   }
+  return res.send({ data: result })
 })
 
 router.get("/:id", async (req, res) => {
@@ -27,10 +26,10 @@ router.get("/:id", async (req, res) => {
         artists: true
       }
     })
-    return res.send({ data: result })
   } catch (err) {
     return res.status(400).send(err.message)
   }
+  return res.send({ data: result })
 })
 
 router.post("/add", upload, async (req, res) => {
@@ -63,10 +62,10 @@ router.post("/add", upload, async (req, res) => {
     result = await entertainment.create({
       data: body
     })
-    return res.send({ msg: "Create Successfully", data: result })
   } catch (error) {
     return res.status(400).send(error.message)
   }
+  return res.send({ msg: "Create Successfully", data: result })
 })
 
 router.put("/edit/:id", upload, async (req, res) => {

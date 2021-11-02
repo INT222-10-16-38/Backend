@@ -4,6 +4,9 @@ const { blacklistToken } = new PrismaClient()
 
 module.exports = async (req, res, next) => {
   const receiveToken = req.headers['authorization']
+  if (!receiveToken) {
+    return res.status(401).send({ msg: "Please send token" })
+  }
   const splitBearer = receiveToken.split(' ')
   const useToken = splitBearer[1]
 
@@ -14,7 +17,7 @@ module.exports = async (req, res, next) => {
   })
 
   if (!useToken) {
-    return res.status(401).send({ msg: "Please send token" })
+    return res.status(401).send({ msg: "Please send the correct token" })
   }
 
   if (blackListToken) {

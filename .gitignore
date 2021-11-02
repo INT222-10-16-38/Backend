@@ -10,7 +10,7 @@
 .env
 
 # upload image
-# /uploads
+/uploads
 
 # Mockup Data
 *.mockup.json

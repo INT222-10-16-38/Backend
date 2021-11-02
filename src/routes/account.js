@@ -10,14 +10,13 @@ const checkAdmin = require("../middlewares/checkAdmin")
 const { calPage, calSkip } = require('../helpers/pagination');
 
 router.get("/", auth, checkAdmin, async (req, res) => {
-  await account.findMany().then((results) => {
-    if (req.account.role_id == 1) {
-      req.account.role = "Admin"
-    }
-    return res.send({ data: results, loginAs: req.account })
-  }).catch((err) => {
-    return res.send({ status: "Can't get data", error: err })
-  })
+  let results
+  try {
+    results = await account.findMany()
+  } catch (error) {
+    return res.send({ status: "Can't get data", error: error.meta })
+  }
+  return res.send({ data: results, loginAs: req.account })
 })
 
 router.get("/page/:page", async (req, res) => {
