@@ -20,7 +20,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ secrets.ACCOUNT }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name : Create env file
         run : |
