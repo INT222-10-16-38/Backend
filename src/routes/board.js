@@ -21,11 +21,13 @@ router.get("/page/:page", async (req, res) => {
   let page = Number(req.params.page)
   let numberOfItem = 6
   let results = await board.findMany({
+    orderBy: {
+      b_id: "desc"
+    },
     skip: calSkip(page, numberOfItem),
-    take: numberOfItem
+    take: numberOfItem,
   })
   const totalBoard = await board.count()
-  console.log(totalBoard)
   return res.send({ data: results, page: page, totalPage: calPage(totalBoard, numberOfItem) })
 })
 
