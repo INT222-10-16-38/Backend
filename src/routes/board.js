@@ -6,28 +6,38 @@ const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
 const { calPage, calSkip } = require('../helpers/pagination');
 
 router.get("/", async (req, res) => {
-  await board.findMany({
-    include: {
-      account: true
-    }
-  }).then((results) => {
-    return res.send({ data: results, totalPage: calPage(results.length) })
-  }).catch((err) => {
-    return res.send({ status: "Can't get data", error: err })
-  })
+  let results
+  try {
+    results = await board.findMany({
+      include: {
+        account: true
+      }
+    })
+  } catch (error) {
+    return res.send({ status: "Can't get data", error: error })
+  }
+  return res.send({ data: results, totalPage: calPage(results.length) })
 })
 
 router.get("/page/:page", async (req, res) => {
   let page = Number(req.params.page)
   let numberOfItem = 6
-  let results = await board.findMany({
-    orderBy: {
-      b_id: "desc"
-    },
-    skip: calSkip(page, numberOfItem),
-    take: numberOfItem,
-  })
+  let results
+  try {
+    results = await board.findMany({
+      orderBy: {
+        b_id: "desc"
+      },
+      skip: calSkip(page, numberOfItem),
+      take: numberOfItem,
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   const totalBoard = await board.count()
+  if (!results) {
+    return res.send({ data: results })
+  }
   return res.send({ data: results, page: page, totalPage: calPage(totalBoard, numberOfItem) })
 })
 
@@ -42,7 +52,7 @@ router.post('/add', upload, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let boardData = await readFile(jsonFile)
   deleteFile(jsonFile.filename)
@@ -52,7 +62,7 @@ router.post('/add', upload, async (req, res) => {
     }
   }
   const { error } = validateBoard(boardData)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   try {
     await board.create({
@@ -61,7 +71,7 @@ router.post('/add', upload, async (req, res) => {
   } catch (error) {
     if (error.code == 'P2003') {
       console.log(error.message)
-      return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
+      return res.status(500).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
     }
   }
   return res.send({ status: "Create Board Successfully", err: false })
@@ -69,17 +79,23 @@ router.post('/add', upload, async (req, res) => {
 
 router.put("/edit/:id", upload, async (req, res) => {
   let id = Number(req.params.id)
-  let findedBoard = await board.findFirst({
-    where: {
-      b_id: id
-    },
-    select: {
-      b_image: true,
-    }
-  })
+
+  let findedBoard
+  try {
+    findedBoard = await board.findFirst({
+      where: {
+        b_id: id
+      },
+      select: {
+        b_image: true,
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
 
   if (!findedBoard) {
-    return res.status(400).send({ msg: "Can't find board id" })
+    return res.status(500).send({ msg: "Can't find board id" })
   }
 
   let files = req.files
@@ -92,7 +108,7 @@ router.put("/edit/:id", upload, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let boardData = await readFile(file)
   deleteFile(file.filename)
@@ -106,7 +122,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     }
   }
   const { error } = validateBoard(boardData)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   let updateResult
   try {
@@ -118,7 +134,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     })
   } catch (error) {
     if (error.code == 'P2003') {
-      return res.status(400).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
+      return res.status(500).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
     }
   }
   if (updateResult) {
@@ -141,7 +157,7 @@ router.delete("/delete/:id", async (req, res) => {
       }
     })
   } catch (err) {
-    return res.status(400).send({ msg: err.meta.cause })
+    return res.status(500).send({ msg: err.meta.cause })
   }
   if (result.b_image) {
     deleteFile(result.b_image)

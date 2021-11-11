@@ -38,10 +38,10 @@ const upload = multer({
 module.exports = async (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
-      return res.status(400)
+      return res.status(500)
     }
     if (!req.files) {
-      return res.status(400).send({ msg: "Please send data with data-form" })
+      return res.status(500).send({ msg: "Please send data with data-form" })
     }
     next()
   })

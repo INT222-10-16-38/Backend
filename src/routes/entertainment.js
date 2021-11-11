@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   try {
     result = await entertainment.findMany()
   } catch (err) {
-    return res.status(400).send({ msg: err.message })
+    return res.status(500).send({ msg: err.message })
   }
   return res.send({ data: result })
 })
@@ -27,7 +27,7 @@ router.get("/:id", async (req, res) => {
       }
     })
   } catch (err) {
-    return res.status(400).send(err.message)
+    return res.status(500).send(err.message)
   }
   return res.send({ data: result })
 })
@@ -43,7 +43,7 @@ router.post("/add", upload, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let body = await readFile(jsonFile)
   console.log(body)
@@ -54,7 +54,7 @@ router.post("/add", upload, async (req, res) => {
     }
   }
   const { error } = validateEntertainment(body)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   body.e_foundingdate = new Date(body.e_foundingdate)
   let result
@@ -63,7 +63,7 @@ router.post("/add", upload, async (req, res) => {
       data: body
     })
   } catch (error) {
-    return res.status(400).send(error.message)
+    return res.status(500).send(error.message)
   }
   return res.send({ msg: "Create Successfully", data: result })
 })
@@ -88,7 +88,7 @@ router.put("/edit/:id", upload, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let body = await readFile(jsonFile)
   await deleteFile(jsonFile.filename)
@@ -99,7 +99,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     }
   }
   const { error } = validateEntertainment(body)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   body.e_foundingdate = new Date(body.e_foundingdate)
   let result
@@ -111,7 +111,7 @@ router.put("/edit/:id", upload, async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(400).send(error.message)
+    return res.status(500).send(error.message)
   }
   if (result) {
     console.log(imgFile)

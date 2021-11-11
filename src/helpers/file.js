@@ -31,7 +31,7 @@ const sendImage = async (req, res, next) => {
     await fs.readFile(pathFile)
     return res.sendFile(pathFile)
   } catch (error) {
-    return res.status(400).send({ msg: error.message })
+    return res.status(500).send({ msg: error.message })
   }
 }
 

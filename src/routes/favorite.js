@@ -32,7 +32,7 @@ router.delete("/delete/:aid/:uid", async (req, res) => {
   let uid = Number(req.params.uid)
 
   if (!aid || !uid) {
-    return res.status(400).send({ msg: "Please assign albumId and userId" })
+    return res.status(500).send({ msg: "Please assign albumId and userId" })
   }
 
   let results = await favorite.deleteMany({
@@ -42,7 +42,7 @@ router.delete("/delete/:aid/:uid", async (req, res) => {
     }
   })
   if (results.count <= 0) {
-    return res.status(400).send({ msg: "Can't find Favorite" })
+    return res.status(500).send({ msg: "Can't find Favorite" })
   }
   return res.send({ msg: "Delete Successfully" })
 })

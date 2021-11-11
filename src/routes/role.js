@@ -14,11 +14,11 @@ router.post("/add", async (req, res) => {
     }
   })
   const { error } = validateRole(req.body)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   console.log(existsRole)
   if (existsRole) {
-    return res.status(400).send({ msg: "Role is exists" })
+    return res.status(500).send({ msg: "Role is exists" })
   }
   let addRole = await role.create({
     data: {
@@ -36,11 +36,11 @@ router.put("/edit/:id", async (req, res) => {
     }
   })
   if (!existsRole) {
-    return res.status(400).send({ msg: "Role doesn't exists" })
+    return res.status(500).send({ msg: "Role doesn't exists" })
   }
 
   const { error } = validateRole(body)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   let updatedRole = await role.update({
     data: {

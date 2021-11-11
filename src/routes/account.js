@@ -53,7 +53,7 @@ router.post("/register", upload, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let accountData = await readFile(jsonFile)
   deleteFile(jsonFile.filename)
@@ -63,7 +63,7 @@ router.post("/register", upload, async (req, res) => {
     }
   }
   const { error } = validateRegister(accountData)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   // Find with email
   let userExists = await account.findFirst({
@@ -76,7 +76,7 @@ router.post("/register", upload, async (req, res) => {
   })
   // Check email if exists throw error
   if (userExists) {
-    return res.status(400).send({ msg: "User or email already exists" })
+    return res.status(500).send({ msg: "User or email already exists" })
   }
   // Generate salt and hash password
   const salt = await bcrypt.genSalt(10)
@@ -100,7 +100,7 @@ router.patch("/edit", upload, auth, async (req, res) => {
   })
   if (!jsonFile) {
     await dataNotValid(files)
-    return res.status(400).send({ msg: `Please send jsonData` })
+    return res.status(500).send({ msg: `Please send jsonData` })
   }
   let accountData = await readFile(jsonFile)
   deleteFile(jsonFile.filename)
@@ -112,7 +112,7 @@ router.patch("/edit", upload, auth, async (req, res) => {
   }
   console.log(accountData)
   const { error } = validateRegister(accountData)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   let updateResult = await account.update({
     data: {
@@ -140,7 +140,7 @@ router.patch("/edit", upload, auth, async (req, res) => {
 router.post("/login", async (req, res) => {
   let body = req.body
   const { error } = validateLogin(body)
-  if (error) return res.status(400).send({ err: error.details[0].message })
+  if (error) return res.status(500).send({ err: error.details[0].message })
 
   const findedUser = await account.findFirst({
     where: {
@@ -148,11 +148,11 @@ router.post("/login", async (req, res) => {
     }
   })
   if (!findedUser) {
-    return res.status(400).send({ msg: "Invalid Username" })
+    return res.status(500).send({ msg: "Invalid Username" })
   }
   const validPassword = await bcrypt.compare(body.ac_password, findedUser.ac_password)
   if (!validPassword) {
-    return res.status(400).send({ msg: "Invalid Password" })
+    return res.status(500).send({ msg: "Invalid Password" })
   }
 
   delete findedUser.ac_password
@@ -171,7 +171,7 @@ router.delete("/delete/:id", async (req, res) => {
       }
     })
   } catch (err) {
-    return res.status(400).send({ err: err.meta.cause })
+    return res.status(500).send({ err: err.meta.cause })
   }
   return res.send({ msg: "Delete Successfully" })
 })

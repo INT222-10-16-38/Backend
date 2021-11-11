@@ -14,9 +14,9 @@ router.get("/", async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(400).send({ status: "Can't get data", msg: error.meta })
+    return res.status(500).send({ status: "Can't get data", msg: error.meta })
   }
-  return res.send({ data: results, totalPage: calPage(results.length, 20) })
+  return res.send({ data: results })
 })
 
 router.get("/page/:page", async (req, res) => {
@@ -29,7 +29,7 @@ router.get("/page/:page", async (req, res) => {
       take: numberOfItem
     })
   } catch (error) {
-    return res.status(400).send({ error: error })
+    return res.status(500).send({ error: error })
   }
   const totalAlbum = await album.count()
   return res.send({ data: results, page: page, totalPage: calPage(totalAlbum, numberOfItem) })
@@ -48,28 +48,30 @@ router.get("/:id", async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(400).send({ msg: err.meta.cause })
+    return res.status(500).send({ msg: err.meta.cause })
   }
   if (!result) {
-    return res.status(400).send({ msg: "Can't find this album id" })
+    return res.status(500).send({ msg: "Can't find this album id" })
   }
   return res.send({ data: result })
 })
 
+// Add Albums
 router.post("/add", upload, async (req, res) => {
-  try {
-    let files = req.files
-    let imgFile = []
-    let jsonFile = files.find((file) => {
-      if (file.mimetype != "application/json") {
-        imgFile.push(file)
-      }
-      return file.mimetype == "application/json"
-    })
-    if (!jsonFile) {
-      await dataNotValid(files)
-      return res.status(400).send({ msg: `Please send jsonData` })
+  let files = req.files
+  let imgFile = []
+  let jsonFile = files.find((file) => {
+    if (file.mimetype != "application/json") {
+      imgFile.push(file)
     }
+    return file.mimetype == "application/json"
+  })
+  if (!jsonFile) {
+    await dataNotValid(files)
+    return res.status(500).send({ msg: `Please send jsonData` })
+  }
+
+  try {
     let albumData = await readFile(jsonFile)
     await deleteFile(jsonFile.filename)
     for (const [index, img] of imgFile.entries()) {
@@ -81,7 +83,7 @@ router.post("/add", upload, async (req, res) => {
       }
     }
     const { error } = validateAlbum(albumData)
-    if (error) return res.status(400).send({ err: error.details[0].message })
+    if (error) return res.status(500).send({ err: error.details[0].message })
 
     albumData.release_date = new Date(albumData.release_date)
     await album.create({
@@ -89,7 +91,7 @@ router.post("/add", upload, async (req, res) => {
     })
   } catch (error) {
     await dataNotValid(req.files)
-    return res.status(400).send({ error: error })
+    return res.status(500).send({ error: error })
   }
   return res.send({ status: "Create Album Successfully", err: false })
 })
@@ -107,12 +109,12 @@ router.put("/edit/:id", upload, async (req, res) => {
       }
     })
     if (!findedAlbum) {
-      return res.status(400).send({ msg: "Can't find album" })
+      return res.status(500).send({ msg: "Can't find album" })
     }
     let files = req.files
     let imgFile = []
     if (!files) {
-      return res.status(400).send({ msg: "Please send data with data-form" })
+      return res.status(500).send({ msg: "Please send data with data-form" })
     }
     let jsonFile = files.find((file) => {
       if (file.mimetype != "application/json") {
@@ -122,7 +124,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     })
     if (!jsonFile) {
       await dataNotValid(files)
-      return res.status(400).send({ msg: `Please send jsonData` })
+      return res.status(500).send({ msg: `Please send jsonData` })
     }
     let albumData = await readFile(jsonFile)
     await deleteFile(jsonFile.filename)
@@ -137,7 +139,7 @@ router.put("/edit/:id", upload, async (req, res) => {
       }
     }
     const { error } = validateAlbum(albumData)
-    if (error) return res.status(400).send({ err: error.details[0].message })
+    if (error) return res.status(500).send({ err: error.details[0].message })
     albumData.release_date = new Date(albumData.release_date)
     let updateResult = await album.update({
       where: {
@@ -157,7 +159,7 @@ router.put("/edit/:id", upload, async (req, res) => {
     }
   } catch (error) {
     await dataNotValid(req.files)
-    return res.status(400).send({ error: error })
+    return res.status(500).send({ error: error })
   }
   return res.send({ msg: "Update Successfully" })
 })
@@ -172,15 +174,18 @@ router.delete("/delete/:id", async (req, res) => {
       }
     })
 
-  } catch (err) {
-    return res.status(400).send({ msg: err.meta.cause })
+  } catch (error) {
+    return res.status(500).send({ msg: error })
   }
-  // Wait for server on production
-  if (result.cover_image != "default_cover_image.jpg") {
-    deleteFile(result.cover_image)
-  }
-  if (result.cover_image != "default_preview_image.png") {
-    deleteFile(result.preview_image)
+  try {
+    if (result.cover_image != "default_cover_image.jpg") {
+      deleteFile(result.cover_image)
+    }
+    if (result.cover_image != "default_preview_image.png") {
+      deleteFile(result.preview_image)
+    }
+  } catch (error) {
+    console.log(error)
   }
   return res.send({ msg: "Delete Succesfully" })
 })
