@@ -133,7 +133,7 @@ router.put("/edit/:id", upload, async (req, res) => {
   return res.send({ msg: "Update Successfully", data: result })
 })
 
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
   let id = Number(req.params.id)
   let results
   try {
