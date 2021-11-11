@@ -54,15 +54,22 @@ router.post('/add', upload, async (req, res) => {
     await dataNotValid(files)
     return res.status(500).send({ msg: `Please send jsonData` })
   }
-  let boardData = await readFile(jsonFile)
-  deleteFile(jsonFile.filename)
-  for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "b_image") {
-      boardData.b_image = await img.filename
+  let boardData
+  try {
+    boardData = await readFile(jsonFile)
+    deleteFile(jsonFile.filename)
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "b_image") {
+        boardData.b_image = await img.filename
+      }
     }
+    const { error } = validateBoard(boardData)
+    if (error) {
+      return res.status(500).send({ err: error.details[0].message })
+    }
+  } catch (error) {
+    return res.status(500).send({ error: error })
   }
-  const { error } = validateBoard(boardData)
-  if (error) return res.status(500).send({ err: error.details[0].message })
 
   try {
     await board.create({
@@ -73,6 +80,7 @@ router.post('/add', upload, async (req, res) => {
       console.log(error.message)
       return res.status(500).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
     }
+    return res.status(500).send({ error: error })
   }
   return res.send({ status: "Create Board Successfully", err: false })
 })
@@ -110,19 +118,27 @@ router.put("/edit/:id", upload, async (req, res) => {
     await dataNotValid(files)
     return res.status(500).send({ msg: `Please send jsonData` })
   }
-  let boardData = await readFile(file)
-  deleteFile(file.filename)
-  if (!findedBoard.b_image) {
-    findedBoard.b_image = ""
-  }
-  boardData.b_image = findedBoard.b_image
-  for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "b_image") {
-      boardData.b_image = await img.filename
+  let boardData
+  try {
+    boardData = await readFile(file)
+    deleteFile(file.filename)
+    if (!findedBoard.b_image) {
+      findedBoard.b_image = ""
     }
+    boardData.b_image = findedBoard.b_image
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "b_image") {
+        boardData.b_image = await img.filename
+      }
+    }
+    const { error } = validateBoard(boardData)
+    if (error) {
+      return res.status(500).send({ err: error.details[0].message })
+    }
+  } catch (error) {
+
   }
-  const { error } = validateBoard(boardData)
-  if (error) return res.status(500).send({ err: error.details[0].message })
+
 
   let updateResult
   try {
@@ -137,6 +153,7 @@ router.put("/edit/:id", upload, async (req, res) => {
       return res.status(500).send({ msg: "Foreign key constraint failed on the field: `account_ac_id`" })
     }
   }
+
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
       if (findedBoard.b_image != "") {
@@ -157,7 +174,7 @@ router.delete("/delete/:id", async (req, res) => {
       }
     })
   } catch (err) {
-    return res.status(500).send({ msg: err.meta.cause })
+    return res.status(500).send({ msg: err })
   }
   if (result.b_image) {
     deleteFile(result.b_image)
