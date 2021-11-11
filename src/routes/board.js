@@ -136,7 +136,7 @@ router.put("/edit/:id", upload, async (req, res) => {
       return res.status(500).send({ err: error.details[0].message })
     }
   } catch (error) {
-
+    return res.status(500).send({ error: error })
   }
 
 

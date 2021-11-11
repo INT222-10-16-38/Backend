@@ -45,18 +45,22 @@ router.post("/add", upload, async (req, res) => {
     await dataNotValid(files)
     return res.status(500).send({ msg: `Please send jsonData` })
   }
-  let body = await readFile(jsonFile)
-  console.log(body)
-  await deleteFile(jsonFile.filename)
-  for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "e_image") {
-      body.e_logo = await img.filename
+  let body
+  try {
+    body = await readFile(jsonFile)
+    await deleteFile(jsonFile.filename)
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "e_image") {
+        body.e_logo = await img.filename
+      }
     }
+    const { error } = validateEntertainment(body)
+    if (error) return res.status(500).send({ err: error.details[0].message })
+    body.e_foundingdate = new Date(body.e_foundingdate)
+  } catch (error) {
+    return res.status(500).send({ error: error })
   }
-  const { error } = validateEntertainment(body)
-  if (error) return res.status(500).send({ err: error.details[0].message })
 
-  body.e_foundingdate = new Date(body.e_foundingdate)
   let result
   try {
     result = await entertainment.create({
@@ -90,18 +94,24 @@ router.put("/edit/:id", upload, async (req, res) => {
     await dataNotValid(files)
     return res.status(500).send({ msg: `Please send jsonData` })
   }
-  let body = await readFile(jsonFile)
-  await deleteFile(jsonFile.filename)
-  body.e_logo = findedEntertainment.e_logo
-  for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "e_logo") {
-      body.e_logo = await img.filename
+  let body
+  try {
+    body = await readFile(jsonFile)
+    await deleteFile(jsonFile.filename)
+    body.e_logo = findedEntertainment.e_logo
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "e_logo") {
+        body.e_logo = await img.filename
+      }
     }
-  }
-  const { error } = validateEntertainment(body)
-  if (error) return res.status(500).send({ err: error.details[0].message })
+    const { error } = validateEntertainment(body)
+    if (error) return res.status(500).send({ err: error.details[0].message })
 
-  body.e_foundingdate = new Date(body.e_foundingdate)
+    body.e_foundingdate = new Date(body.e_foundingdate)
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
+
   let result
   try {
     result = await entertainment.update({
@@ -114,7 +124,6 @@ router.put("/edit/:id", upload, async (req, res) => {
     return res.status(500).send(error.message)
   }
   if (result) {
-    console.log(imgFile)
     for (const [index, img] of imgFile.entries()) {
       if (findedEntertainment.e_logo != "preview_logo.png") {
         await deleteFile(findedEntertainment.e_logo)
@@ -122,6 +131,24 @@ router.put("/edit/:id", upload, async (req, res) => {
     }
   }
   return res.send({ msg: "Update Successfully", data: result })
+})
+
+router.delete("/delete/:id", (req, res) => {
+  let id = Number(req.params.id)
+  let results
+  try {
+    results = await entertainment.delete({
+      where: {
+        e_id: id
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
+  if (results.e_logo) {
+    deleteFile(results.e_logo)
+  }
+  return res.send({ msg: `Delete ${results.e_name} Successfully` })
 })
 
 module.exports = router
