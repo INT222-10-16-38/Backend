@@ -50,7 +50,7 @@ router.post("/add", upload, async (req, res) => {
     body = await readFile(jsonFile)
     await deleteFile(jsonFile.filename)
     for (const [index, img] of imgFile.entries()) {
-      if (img.fieldname == "e_image") {
+      if (img.fieldname == "e_logo") {
         body.e_logo = await img.filename
       }
     }
