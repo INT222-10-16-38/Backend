@@ -16,7 +16,6 @@ router.post("/add", async (req, res) => {
   const { error } = validateRole(req.body)
   if (error) return res.status(500).send({ err: error.details[0].message })
 
-  console.log(existsRole)
   if (existsRole) {
     return res.status(500).send({ msg: "Role is exists" })
   }

@@ -22,21 +22,31 @@ router.get("/", auth, checkAdmin, async (req, res) => {
 router.get("/page/:page", async (req, res) => {
   let page = Number(req.params.page)
   let numberOfItem = 20
-  let results = await account.findMany({
-    skip: calSkip(page, numberOfItem),
-    select: numberOfItem
-  })
+  let results
+  try {
+    results = await account.findMany({
+      skip: calSkip(page, numberOfItem),
+      select: numberOfItem
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   const totalAccount = await account.count()
   return res.send({ data: results, page: page, totalPage: calPage(totalAccount, numberOfItem) })
 })
 
 router.get("/:id", async (req, res) => {
   let id = Number(req.params.id)
-  let results = await account.findMany({
-    where: {
-      ac_id: id
-    },
-  })
+  let results
+  try {
+    results = await account.findMany({
+      where: {
+        ac_id: id
+      },
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   if (!results) {
     return res.send({ msg: "Can't find userId" })
   }
@@ -83,9 +93,13 @@ router.post("/register", upload, async (req, res) => {
   const hashedPassword = await bcrypt.hash(accountData.ac_password, salt)
   accountData.ac_password = hashedPassword
 
-  await account.create({
-    data: accountData
-  })
+  try {
+    await account.create({
+      data: accountData
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   return res.send({ status: "Create Account Successfully", err: false })
 })
 
@@ -114,18 +128,24 @@ router.patch("/edit", upload, auth, async (req, res) => {
   const { error } = validateRegister(accountData)
   if (error) return res.status(500).send({ err: error.details[0].message })
 
-  let updateResult = await account.update({
-    data: {
-      ac_fname: accountData.ac_fname,
-      ac_lname: accountData.ac_lname,
-      ac_email: accountData.ac_email,
-      ac_image: accountData.ac_image,
-      ac_role: accountData.ac_role,
-    },
-    where: {
-      ac_id: req.account.ac_id
-    }
-  })
+  let updateResult
+  try {
+    updateResult = await account.update({
+      data: {
+        ac_fname: accountData.ac_fname,
+        ac_lname: accountData.ac_lname,
+        ac_email: accountData.ac_email,
+        ac_image: accountData.ac_image,
+        ac_role: accountData.ac_role,
+      },
+      where: {
+        ac_id: req.account.ac_id
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
+
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
       if (req.account.ac_image != "default_ac_image.png") {
@@ -142,11 +162,16 @@ router.post("/login", async (req, res) => {
   const { error } = validateLogin(body)
   if (error) return res.status(500).send({ err: error.details[0].message })
 
-  const findedUser = await account.findFirst({
-    where: {
-      ac_username: body.ac_username
-    }
-  })
+  let findedUser
+  try {
+    findedUser = await account.findFirst({
+      where: {
+        ac_username: body.ac_username
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   if (!findedUser) {
     return res.status(500).send({ msg: "Invalid Username" })
   }
@@ -163,7 +188,6 @@ router.post("/login", async (req, res) => {
 
 router.delete("/delete/:id", async (req, res) => {
   let id = Number(req.params.id)
-  let result
   try {
     await account.delete({
       where: {
@@ -177,11 +201,15 @@ router.delete("/delete/:id", async (req, res) => {
 })
 
 router.post("/logout", auth, async (req, res) => {
-  await blacklistToken.create({
-    data: {
-      token: req.token
-    }
-  })
+  try {
+    await blacklistToken.create({
+      data: {
+        token: req.token
+      }
+    })
+  } catch (error) {
+    return res.status(500).send({ error: error })
+  }
   return res.send({ msg: "Logout Successfull" })
 })
 
