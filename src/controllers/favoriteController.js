@@ -8,11 +8,14 @@ let getByUserId = (id) => {
         account_id: id
       },
       include: {
-        album: true
+        album: {
+          include: {
+            artists: true
+          }
+        }
       }
     })
   } catch (error) {
-    console.log(error)
     throw new Error(error)
   }
   return results

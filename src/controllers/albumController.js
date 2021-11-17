@@ -47,7 +47,6 @@ let getAlbumById = async (id) => {
   } catch (error) {
     throw new Error(error)
   }
-  console.log(results)
   return results
 }
 
