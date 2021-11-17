@@ -36,7 +36,7 @@ let getAlbumByPage = async (page, numberOfItem) => {
 let getAlbumById = async (id) => {
   let results
   try {
-    results = await album.findMany({
+    results = await album.findFirst({
       where: {
         a_id: id
       },
@@ -47,6 +47,7 @@ let getAlbumById = async (id) => {
   } catch (error) {
     throw new Error(error)
   }
+  console.log(results)
   return results
 }
 

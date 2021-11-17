@@ -22,7 +22,7 @@ router.get("/:id", async (req, res) => {
   let id = Number(req.params.id)
   let results
   try {
-    results = await artists.findMany({
+    results = await artists.findFirst({
       where: {
         art_id: id
       },
