@@ -12,7 +12,14 @@ const { calPage, calSkip } = require('../helpers/pagination');
 router.get("/", auth, checkAdmin, async (req, res) => {
   let results
   try {
-    results = await account.findMany()
+    results = await account.findMany({
+      select: {
+        ac_id: true,
+        ac_username: true,
+        ac_image: true,
+        role: true
+      }
+    })
   } catch (error) {
     return res.send({ status: "Can't get data", error: error.meta })
   }
@@ -26,7 +33,13 @@ router.get("/page/:page", async (req, res) => {
   try {
     results = await account.findMany({
       skip: calSkip(page, numberOfItem),
-      select: numberOfItem
+      take: numberOfItem,
+      select: {
+        ac_id: true,
+        ac_username: true,
+        ac_image: true,
+        role: true
+      }
     })
   } catch (error) {
     return res.status(500).send({ error: error })
@@ -39,10 +52,16 @@ router.get("/:id", async (req, res) => {
   let id = Number(req.params.id)
   let results
   try {
-    results = await account.findMany({
+    results = await account.findFirst({
       where: {
         ac_id: id
       },
+      select: {
+        ac_id: true,
+        ac_username: true,
+        ac_image: true,
+        role: true
+      }
     })
   } catch (error) {
     return res.status(500).send({ error: error })
@@ -50,6 +69,9 @@ router.get("/:id", async (req, res) => {
   if (!results) {
     return res.send({ msg: "Can't find userId" })
   }
+
+  delete results.ac_password
+  return res.send({ data: results })
 })
 
 router.post("/register", upload, async (req, res) => {
