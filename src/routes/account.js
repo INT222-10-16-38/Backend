@@ -23,7 +23,7 @@ router.get("/", auth, checkAdmin, async (req, res) => {
   } catch (error) {
     return res.send({ status: "Can't get data", error: error.meta })
   }
-  return res.send({ data: results, loginAs: req.account })
+  return res.send({ data: results })
 })
 
 router.get("/page/:page", async (req, res) => {
@@ -192,6 +192,9 @@ router.post("/login", async (req, res) => {
     findedUser = await account.findFirst({
       where: {
         ac_username: body.ac_username
+      },
+      include: {
+        role: true
       }
     })
   } catch (error) {
@@ -206,9 +209,13 @@ router.post("/login", async (req, res) => {
   }
 
   delete findedUser.ac_password
+  delete findedUser.ac_email
+  delete findedUser.ac_fname
+  delete findedUser.ac_lname
+  delete findedUser.role_id
   // Create TOKEN
   const token = jwt.sign(findedUser, process.env.TOKEN_SECRET)
-  return res.send({ msg: "Login Successfully", token: token, loginAs: findedUser })
+  return res.send({ msg: "Login Successfully", token: token })
 })
 
 router.delete("/delete/:id", async (req, res) => {
