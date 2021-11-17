@@ -186,7 +186,7 @@ router.post("/login", async (req, res) => {
   delete findedUser.ac_password
   // Create TOKEN
   const token = jwt.sign(findedUser, process.env.TOKEN_SECRET)
-  return res.send({ msg: "Login Successfully", token: token })
+  return res.send({ msg: "Login Successfully", token: token, loginAs: findedUser })
 })
 
 router.delete("/delete/:id", async (req, res) => {

@@ -54,14 +54,6 @@ const validateLogin = (data) => {
   return schema.validate(data)
 }
 
-const validateFavorite = (data) => {
-  const schema = Joi.object({
-    album_id: Joi.number().min(1).required(),
-    account_id: Joi.number().min(1).required(),
-  })
-  return schema.validate(data)
-}
-
 const validateEntertainment = (data) => {
   const schema = Joi.object({
     e_name: Joi.string().required(),
@@ -84,6 +76,5 @@ module.exports.validateBoard = validateBoard
 module.exports.validateAlbum = validateAlbum
 module.exports.validateRegister = validateRegister
 module.exports.validateLogin = validateLogin
-module.exports.validateFavorite = validateFavorite
 module.exports.validateEntertainment = validateEntertainment
 module.exports.validateRole = validateRole
