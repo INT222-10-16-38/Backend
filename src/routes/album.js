@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
       }
     })
   } catch (error) {
-    return res.status(500).send({ status: "Can't get data", msg: error.meta })
+    return res.status(500).send({ status: "Can't get data", error: error })
   }
   return res.send({ data: results })
 })

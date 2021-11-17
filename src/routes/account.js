@@ -93,14 +93,17 @@ router.post("/register", upload, async (req, res) => {
   const hashedPassword = await bcrypt.hash(accountData.ac_password, salt)
   accountData.ac_password = hashedPassword
 
+  let result
   try {
-    await account.create({
+    result = await account.create({
       data: accountData
     })
   } catch (error) {
     return res.status(500).send({ error: error })
   }
-  return res.send({ status: "Create Account Successfully", err: false })
+  delete result.ac_password
+  const token = jwt.sign(findedUser, process.env.TOKEN_SECRET)
+  return res.send({ status: "Create Account Successfully", token: token, })
 })
 
 router.patch("/edit", upload, auth, async (req, res) => {

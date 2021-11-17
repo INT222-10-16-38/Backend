@@ -11,7 +11,7 @@ datasource db {
 model artists {
   art_id           Int           @id @default(autoincrement())
   art_name         String        @db.VarChar(45)
-  art_description  String        @db.VarChar(100)
+  art_description  String        @db.VarChar(1000)
   art_image        String        @db.VarChar(500)
   entertainment_id Int
   entertainment    entertainment @relation(fields: [entertainment_id], references: [e_id], onDelete: Cascade, onUpdate: NoAction)
@@ -76,7 +76,7 @@ model favorite {
 model entertainment {
   e_id           Int       @id @default(autoincrement())
   e_name         String    @db.VarChar(45)
-  e_description  String    @db.VarChar(500)
+  e_description  String    @db.VarChar(1000)
   e_foundingdate DateTime  @db.Date
   e_logo         String    @db.VarChar(500)
   artists        artists[]
