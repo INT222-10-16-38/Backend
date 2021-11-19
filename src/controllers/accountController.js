@@ -114,14 +114,17 @@ let registerAccount = async (files) => {
     throw new Error(error)
   }
 
-  console.log(accountData)
-
   let token
   try {
     let result = await account.create({
-      data: accountData
+      data: accountData,
+      select: {
+        ac_id: true,
+        ac_username: true,
+        ac_image: true,
+        role: true
+      }
     })
-    delete result["ac_password"]
     token = jwt.sign(result, process.env.TOKEN_SECRET)
   } catch (error) {
     throw new Error(error)
