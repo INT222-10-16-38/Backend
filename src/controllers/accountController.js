@@ -84,9 +84,9 @@ let registerAccount = async (files) => {
   let accountData
   try {
     accountData = await readAccountData(jsonFile, imgFile, null)
+    console.log(accountData)
     const { error } = validateRegister(accountData)
     if (error) {
-      console.log(error)
       throw new Error(error.details[0].message)
     }
 
@@ -113,6 +113,8 @@ let registerAccount = async (files) => {
   } catch (error) {
     throw new Error(error)
   }
+
+  console.log(accountData)
 
   let token
   try {
@@ -282,8 +284,10 @@ let readAccountData = async (jsonFile, imgFile, req) => {
   deleteFile(jsonFile.filename)
   accountData["ac_username"] = accountData["ac_username"].toLowerCase()
   accountData["ac_email"] = accountData["ac_email"].toLowerCase()
-  if (req.account["ac_image"]) {
-    accountData["ac_image"] = req.account["ac_image"]
+  if (req) {
+    if (req.account["ac_image"]) {
+      accountData["ac_image"] = req.account["ac_image"]
+    }
   }
   for (const [index, img] of imgFile.entries()) {
     if (img.fieldname == "ac_image") {
