@@ -154,7 +154,7 @@ router.delete("/delete/:id", async (req, res) => {
     return res.send({ msg: "Artist doesn't exists" })
   }
 
-  return res.send({ msg: "Delete Album Successfully" })
+  return res.send({ msg: "Delete Artist Successfully" })
 })
 
 module.exports = router

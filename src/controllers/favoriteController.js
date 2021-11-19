@@ -43,7 +43,7 @@ let unFavoriteAlbum = async (aid, uid) => {
       }
     })
   } catch (error) {
-
+    throw new Error(error)
   }
 }
 

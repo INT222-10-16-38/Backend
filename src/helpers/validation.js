@@ -35,13 +35,24 @@ const validateAlbum = (data) => {
 
 const validateRegister = (data) => {
   const schema = Joi.object({
-    ac_username: Joi.string().min(6).required(),
+    ac_username: Joi.string().min(6).lowercase().required(),
     ac_password: Joi.string().min(6).required(),
-    ac_email: Joi.string().min(6).email().required(),
+    ac_email: Joi.string().min(6).email().lowercase().required(),
     ac_fname: Joi.string().min(3).required(),
     ac_lname: Joi.string().min(3).required(),
     ac_image: Joi.string().min(3),
     role_id: Joi.number().required(),
+  })
+  return schema.validate(data)
+}
+
+const validateEditProfile = (data) => {
+  const schema = Joi.object({
+    ac_username: Joi.string().min(6).lowercase().required(),
+    ac_email: Joi.string().min(6).email().lowercase().required(),
+    ac_fname: Joi.string().min(3).required(),
+    ac_lname: Joi.string().min(3).required(),
+    ac_image: Joi.string().min(3),
   })
   return schema.validate(data)
 }
@@ -76,5 +87,6 @@ module.exports.validateBoard = validateBoard
 module.exports.validateAlbum = validateAlbum
 module.exports.validateRegister = validateRegister
 module.exports.validateLogin = validateLogin
+module.exports.validateEditProfile = validateEditProfile
 module.exports.validateEntertainment = validateEntertainment
 module.exports.validateRole = validateRole
