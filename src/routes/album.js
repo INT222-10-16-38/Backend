@@ -2,6 +2,8 @@ const router = require("express").Router()
 const upload = require("../middlewares/uploadFile")
 const { dataNotValid } = require("../helpers/file")
 const albumController = require("../controllers/albumController")
+const auth = require("../middlewares/auth")
+const checkAdmin = require("../middlewares/checkAdmin")
 
 router.get("/", async (req, res) => {
   let results
@@ -40,7 +42,7 @@ router.get("/:id", async (req, res) => {
 })
 
 // Add Albums
-router.post("/add", upload, async (req, res) => {
+router.post("/add", auth, checkAdmin, upload, async (req, res) => {
   let files = req.files
   try {
     await albumController.addAlbum(files)
@@ -52,7 +54,7 @@ router.post("/add", upload, async (req, res) => {
   return res.send({ status: "Create Album Successfully", err: false })
 })
 
-router.put("/edit/:id", upload, async (req, res) => {
+router.put("/edit/:id", auth, checkAdmin, upload, async (req, res) => {
   let id = Number(req.params.id)
   let files = req.files
   try {
@@ -64,7 +66,7 @@ router.put("/edit/:id", upload, async (req, res) => {
   return res.send({ msg: "Update Successfully" })
 })
 
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", auth, checkAdmin, async (req, res) => {
   let id = Number(req.params.id)
   try {
     await albumController.deleteAlbum(id)

@@ -87,7 +87,6 @@ let registerAccount = async (files) => {
   let accountData
   try {
     accountData = await readAccountData(jsonFile, imgFile, null)
-    console.log(accountData)
     const { error } = validateRegister(accountData)
     if (error) {
       throw new Error(error.details[0].message)
@@ -116,6 +115,8 @@ let registerAccount = async (files) => {
   } catch (error) {
     throw new Error(error)
   }
+
+  accountData["role_id"] = 2 // Make all user regis to role user
 
   let token
   try {
