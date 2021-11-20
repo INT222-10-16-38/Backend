@@ -54,6 +54,9 @@ let getAccountById = async (id) => {
       select: {
         ac_id: true,
         ac_username: true,
+        ac_fname: true,
+        ac_lname: true,
+        ac_email: true,
         ac_image: true,
         role: true
       }
