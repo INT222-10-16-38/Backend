@@ -110,4 +110,14 @@ router.post("/logout", auth, async (req, res) => {
   return res.send({ msg: "Logout Successfull" })
 })
 
+router.patch("/grant/:uid", auth, checkAdmin, async (req, res) => {
+  let id = Number(req.params.uid)
+  try {
+    await accountController.grantAdmin(id)
+  } catch (error) {
+    return res.status(500).send({ error: error.message })
+  }
+  return res.send({ msg: "Grant Admin Successfully" })
+})
+
 module.exports = router

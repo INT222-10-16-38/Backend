@@ -315,6 +315,21 @@ let logoutAccount = async (req) => {
   }
 }
 
+let grantAdmin = async (id) => {
+  try {
+    await account.update({
+      data: {
+        role_id: 1
+      },
+      where: {
+        ac_id: id
+      }
+    })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 module.exports.getAllAccount = getAllAccount
 module.exports.getAccountByPage = getAccountByPage
 module.exports.getAccountById = getAccountById
@@ -324,3 +339,4 @@ module.exports.editAccount = editAccount
 module.exports.changePassword = changePassword
 module.exports.deleteAccount = deleteAccount
 module.exports.logoutAccount = logoutAccount
+module.exports.grantAdmin = grantAdmin

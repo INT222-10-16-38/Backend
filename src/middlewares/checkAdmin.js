@@ -1,5 +1,5 @@
 module.exports = async (req, res, next) => {
-  if (req.account.role["role_name"] != "admin") {
+  if (req.account.role["role_name"] != "admin" && req.account.role["role_id"] != 1) {
     return res.status(401).send({ msg: "User can't access" })
   }
   next()
