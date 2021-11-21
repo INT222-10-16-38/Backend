@@ -1,7 +1,7 @@
 let { album } = require("../models/model")
 const { calPage, calSkip } = require('../helpers/pagination');
 const { validateAlbum } = require("../helpers/validation")
-const { readFile, deleteFile } = require("../helpers/file")
+const { readFile, deleteFile, sortData } = require("../helpers/file")
 
 let getAllAlbums = async () => {
   let results
@@ -51,13 +51,8 @@ let getAlbumById = async (id) => {
 }
 
 let addAlbum = async (files) => {
-  let imgFile = []
-  let jsonFile = files.find((file) => {
-    if (file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+  let { imgFile, jsonFile } = await sortData(files)
+
   if (!jsonFile) {
     throw new Error("Please Send Json File!")
   }
@@ -86,16 +81,7 @@ let editAlbum = async (id, files) => {
     throw new Error("Can't find Album")
   }
 
-  let imgFile = []
-  if (!files) {
-    throw new Error("Please send data with data-form")
-  }
-  let jsonFile = files.find((file) => {
-    if (file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+  let { imgFile, jsonFile } = await sortData(files)
   if (!jsonFile) {
     throw new Error("Please Send Json File!")
   }

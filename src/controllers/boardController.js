@@ -64,13 +64,8 @@ let getBoardByPage = async (page, numberOfItem) => {
 }
 
 let addBoard = async (files, accountId) => {
-  let imgFile = []
-  let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+  let { imgFile, jsonFile } = await sortData(files)
+
   if (!jsonFile) {
     throw new Error("Please send jsonData")
   }
@@ -114,13 +109,12 @@ let editBoard = async (files, id, accountId) => {
     throw new Error("Can't edit another board not own")
   }
 
-  let imgFile = []
-  let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+  let { imgFile, jsonFile } = await sortData(files)
+
+  if (!jsonFile) {
+    throw new Error("Please send jsonData")
+  }
+
   let boardData
   try {
     boardData = await readBoardData(jsonFile, imgFile, null, accountId)

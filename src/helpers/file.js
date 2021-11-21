@@ -34,6 +34,18 @@ const sendImage = async (req, res, next) => {
   }
 }
 
+const sortData = async (files) => {
+  let imgFile = []
+  let jsonFile = files.find((file) => {
+    if (file.mimetype != "application/json") {
+      imgFile.push(file)
+    }
+    return file.mimetype == "application/json"
+  })
+  return { imgFile, jsonFile }
+}
+
+module.exports = { deleteFile, readFile, dataNotValid, sendImage, sortData }
 module.exports.deleteFile = deleteFile
 module.exports.readFile = readFile
 module.exports.dataNotValid = dataNotValid

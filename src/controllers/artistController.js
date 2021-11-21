@@ -1,6 +1,6 @@
 const { artists } = require("../models/model")
 const { validateArtist } = require("../helpers/validation")
-const { readFile, dataNotValid, deleteFile } = require("../helpers/file")
+const { readFile, dataNotValid, deleteFile, sortData } = require("../helpers/file")
 
 let findAllArtists = async () => {
   let results
@@ -34,15 +34,9 @@ let findArtistById = async (id) => {
 }
 
 let addArtist = async (files) => {
-  let imgFile = []
   let result
+  let { imgFile, jsonFile } = await sortData(files)
 
-  let jsonFile = files.find((file) => {
-    if (file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
   if (!jsonFile) {
     throw new Error("Please send jsonData")
   }
@@ -59,7 +53,7 @@ let addArtist = async (files) => {
 }
 
 let editArtist = async (id, files) => {
-  let imgFile = []
+  let { imgFile, jsonFile } = await sortData(files)
   let findedArtist
   try {
     findedArtist = await artists.findFirst({
@@ -74,12 +68,6 @@ let editArtist = async (id, files) => {
     throw new Error(error)
   }
 
-  let jsonFile = files.find((file) => {
-    if (file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
   if (!jsonFile) {
     await dataNotValid(files)
     return res.status(500).send({ msg: `Please send jsonData` })

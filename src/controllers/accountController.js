@@ -1,6 +1,6 @@
 const { account, blacklistToken } = require("../models/model")
 const { calPage, calSkip } = require('../helpers/pagination');
-const { readFile, deleteFile, dataNotValid } = require("../helpers/file")
+const { readFile, deleteFile, dataNotValid, sortData } = require("../helpers/file")
 const { validateRegister, validateLogin, validateEditProfile } = require("../helpers/validation")
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
@@ -73,13 +73,9 @@ let registerAccount = async (files) => {
   if (!files) {
     throw new Error("Please send files")
   }
-  let imgFile = []
-  let jsonFile = files.find((file) => {
-    if (!file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+
+  let { imgFile, jsonFile } = await sortData(files)
+
   if (!jsonFile) {
     throw new Error("Please send jsonFile")
   }
@@ -176,13 +172,7 @@ let loginAccount = async (bodyData) => {
 }
 
 let editAccount = async (files, req) => {
-  let imgFile = []
-  let jsonFile = files.find((file) => {
-    if (file.mimetype != "application/json") {
-      imgFile.push(file)
-    }
-    return file.mimetype == "application/json"
-  })
+  let { imgFile, jsonFile } = await sortData(files)
   if (!jsonFile) {
     await dataNotValid(files)
     throw new Error(`Please send jsonData`)
