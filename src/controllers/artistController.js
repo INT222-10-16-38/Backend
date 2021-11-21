@@ -19,7 +19,7 @@ let findAllArtists = async () => {
 let findArtistById = async (id) => {
   let results
   try {
-    results = await artists.findMany({
+    results = await artists.findFirst({
       where: {
         art_id: id
       },
