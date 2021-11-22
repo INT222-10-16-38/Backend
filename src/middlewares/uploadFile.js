@@ -41,7 +41,7 @@ module.exports = async (req, res, next) => {
       return res.status(500)
     }
     if (!req.files) {
-      return res.status(500).send({ msg: "Please send data with data-form" })
+      return res.status(500).send({ error: "Please send data with data-form" })
     }
     next()
   })

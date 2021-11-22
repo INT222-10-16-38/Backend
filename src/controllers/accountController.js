@@ -321,13 +321,34 @@ let grantAdmin = async (id) => {
   }
 }
 
-module.exports.getAllAccount = getAllAccount
-module.exports.getAccountByPage = getAccountByPage
-module.exports.getAccountById = getAccountById
-module.exports.registerAccount = registerAccount
-module.exports.loginAccount = loginAccount
-module.exports.editAccount = editAccount
-module.exports.changePassword = changePassword
-module.exports.deleteAccount = deleteAccount
-module.exports.logoutAccount = logoutAccount
-module.exports.grantAdmin = grantAdmin
+let deleteAccountByAdmin = async (id) => {
+  let findedAccount
+  try {
+    findedAccount = await account.findFirst({
+      where: {
+        ac_id: id
+      },
+      select: {
+        ac_id: true,
+        role: true
+      }
+    })
+    if (!findedAccount) {
+      throw new Error("Can't find account ID")
+    }
+    if (findedAccount.role["role_name"] == "admin") {
+      throw new Error("Can't Delete Admin Account")
+    }
+    await account.delete({
+      where: {
+        ac_id: findedAccount.ac_id
+      }
+    })
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+module.exports = {
+  getAllAccount, getAccountById, getAccountByPage, registerAccount, loginAccount, editAccount, changePassword,
+  deleteAccount, logoutAccount, grantAdmin, deleteAccountByAdmin
+}

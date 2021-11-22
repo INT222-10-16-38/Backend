@@ -116,4 +116,14 @@ router.patch("/grant/:uid", auth, checkAdmin, async (req, res) => {
   return res.send({ msg: "Grant Admin Successfully" })
 })
 
+router.delete("/delete/byadmin/:uid", auth, checkAdmin, async (req, res) => {
+  let id = Number(req.params.uid)
+  try {
+    await accountController.deleteAccountByAdmin(id)
+  } catch (error) {
+    return res.status(500).send({ error: error.message })
+  }
+  return res.send({ msg: "Delete Account Successfully" })
+})
+
 module.exports = router

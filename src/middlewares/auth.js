@@ -17,22 +17,22 @@ module.exports = async (req, res, next) => {
   })
 
   if (!useToken) {
-    return res.status(401).send({ msg: "Please send the correct token" })
+    return res.status(401).send({ error: "Please send the correct token" })
   }
 
   if (blackListToken) {
-    return res.status(401).send({ msg: "Please login again" })
+    return res.status(401).send({ error: "Please login again" })
   }
 
   let findedUser;
   try {
     findedUser = jwt.verify(useToken, process.env.TOKEN_SECRET)
   } catch (error) {
-    return res.status(401).send({ msg: error.message })
+    return res.status(401).send({ error: error.message })
   }
 
   if (!findedUser) {
-    return res.status(401).send({ msg: "Please Login again" })
+    return res.status(401).send({ error: "Please Login again" })
   }
 
   delete findedUser.ac_password
