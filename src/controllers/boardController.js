@@ -1,6 +1,6 @@
 const { board } = require("../models/model")
 const { validateBoard } = require("../helpers/validation")
-const { readFile, deleteFile } = require("../helpers/file")
+const { readFile, deleteFile, sortData } = require("../helpers/file")
 const { calPage, calSkip } = require('../helpers/pagination');
 
 let findAllBoard = async () => {
