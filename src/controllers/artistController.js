@@ -43,6 +43,10 @@ let addArtist = async (files) => {
 
   try {
     let body = await readArtistData(jsonFile, imgFile, null)
+    let checkArtistName = await alreadyArtistName(body["art_name"])
+    if (checkArtistName) {
+      throw new Error(`Artist ${checkArtistName.art_name} already exists`)
+    }
     result = await artists.create({
       data: body
     })
@@ -61,11 +65,16 @@ let editArtist = async (id, files) => {
         art_id: id
       },
       select: {
+        art_id: true,
         art_image: true
       }
     })
   } catch (error) {
     throw new Error(error)
+  }
+
+  if (!findedArtist) {
+    throw new Error(`Artist not founded`)
   }
 
   if (!jsonFile) {
@@ -76,6 +85,10 @@ let editArtist = async (id, files) => {
   let result
   try {
     let body = await readArtistData(jsonFile, imgFile, findedArtist)
+    let checkArtistName = await alreadyArtistName(body["art_name"])
+    if (checkArtistName.art_id != findedArtist.art_id) {
+      throw new Error(`Artist ${checkArtistName.art_name} already exists`)
+    }
     result = await artists.update({
       data: body,
       where: {
@@ -128,6 +141,26 @@ let deleteArtist = async (id) => {
     throw new Error(error.message)
   }
   return result
+}
+
+let alreadyArtistName = async (artistName) => {
+  let results
+  try {
+    results = await artists.findFirst({
+      where: {
+        art_name: {
+          equals: artistName
+        }
+      },
+      select: {
+        art_id: true,
+        art_name: true
+      }
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+  return results
 }
 
 module.exports = { findAllArtists, findArtistById, addArtist, editArtist, deleteArtist }

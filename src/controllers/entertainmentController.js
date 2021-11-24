@@ -43,6 +43,10 @@ let addEntertainment = async (files) => {
   let body
   try {
     body = await readData(jsonFile, imgFile, null)
+    let checkEntertainmentName = await alreadyEntertainmentName(body["e_name"])
+    if (checkEntertainmentName) {
+      throw new Error(`Entertainment ${checkEntertainmentName.e_name} already exists`)
+    }
   }
   catch (error) {
     throw new Error(error)
@@ -68,13 +72,22 @@ let editEntertainment = async (files, id) => {
       e_id: id
     },
     select: {
+      e_id: true,
       e_logo: true
     }
   })
 
+  if (!findedEntertainment) {
+    throw new Error("Entertainment not founded")
+  }
+
   let body
   try {
     body = await readData(jsonFile, imgFile, findedEntertainment)
+    let checkEntertainmentName = await alreadyEntertainmentName(body["e_name"])
+    if (checkEntertainmentName.e_id != findedEntertainment.e_id) {
+      throw new Error(`Entertainment ${checkEntertainmentName.e_name} already exists`)
+    }
   }
   catch (error) {
     throw new Error(error)
@@ -128,6 +141,26 @@ let readData = async (jsonFile, imgFile, findedEntertainment) => {
 
   body["e_foundingdate"] = new Date(body["e_foundingdate"])
   return body
+}
+
+let alreadyEntertainmentName = async (entertainmentName) => {
+  let results
+  try {
+    results = await entertainment.findFirst({
+      where: {
+        e_name: {
+          equals: entertainmentName
+        }
+      },
+      select: {
+        e_id: true,
+        e_name: true
+      }
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+  return results
 }
 
 module.exports = { getAllEntertainment, getEntertainmentById, addEntertainment, editEntertainment, deleteEntertainment }

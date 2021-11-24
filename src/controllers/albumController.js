@@ -59,6 +59,10 @@ let addAlbum = async (files) => {
 
   try {
     let albumData = await readData(jsonFile, null, imgFile)
+    let findedAlbum = await checkAlreadyAlbumName(albumData["a_name"])
+    if (findedAlbum) {
+      throw new Error(`Album ${findedAlbum.a_name} already exists`)
+    }
     await album.create({
       data: albumData
     })
@@ -73,12 +77,13 @@ let editAlbum = async (id, files) => {
       a_id: id
     },
     select: {
+      a_id: true,
       cover_image: true,
       preview_image: true
     }
   })
   if (!findedAlbum) {
-    throw new Error("Can't find Album")
+    throw new Error("Album not founded")
   }
 
   let { imgFile, jsonFile } = await sortData(files)
@@ -86,6 +91,10 @@ let editAlbum = async (id, files) => {
     throw new Error("Please Send Json File!")
   }
   let albumData = await readData(jsonFile, findedAlbum, imgFile)
+  let checkAlreadyName = await checkAlreadyAlbumName(albumData["a_name"])
+  if (checkAlreadyName.a_id != findedAlbum.a_id) {
+    throw new Error(`Album ${checkAlreadyName.a_name} already exists`)
+  }
   let updateResult = await album.update({
     where: {
       a_id: id
@@ -95,10 +104,10 @@ let editAlbum = async (id, files) => {
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
       if (findedAlbum.cover_image == "cover_image") {
-        deleteFile(findedAlbum.cover_image)
+        await deleteFile(findedAlbum.cover_image)
       }
       if (findedAlbum.cover_image == "preview_image") {
-        deleteFile(findedAlbum.preview_image)
+        await deleteFile(findedAlbum.preview_image)
       }
     }
   }
@@ -112,10 +121,10 @@ let deleteAlbum = async (id) => {
       }
     })
     if (results.cover_image != "default_cover_image.jpg") {
-      deleteFile(results.cover_image)
+      await deleteFile(results.cover_image)
     }
     if (results.cover_image != "default_preview_image.png") {
-      deleteFile(results.preview_image)
+      await deleteFile(results.preview_image)
     }
   } catch (error) {
     throw new Error(error)
@@ -141,6 +150,26 @@ let readData = async (jsonFile, findedAlbum, imgFile) => {
   if (error) throw new Error(error.details[0].message)
   albumData.release_date = new Date(albumData.release_date)
   return albumData
+}
+
+let checkAlreadyAlbumName = async (albumName) => {
+  let results
+  try {
+    results = await album.findFirst({
+      where: {
+        a_name: {
+          equals: albumName
+        }
+      },
+      select: {
+        a_id: true,
+        a_name: true
+      }
+    })
+  } catch (error) {
+    throw new Error(error.message)
+  }
+  return results
 }
 
 module.exports.getAllAlbums = getAllAlbums
