@@ -1,9 +1,9 @@
 const { favorite } = require("../models/model")
 
-let getByUserId = (id) => {
+let getByUserId = async (id) => {
   let results
   try {
-    results = favorite.findMany({
+    results = await favorite.findMany({
       where: {
         account_id: id
       },
@@ -19,6 +19,22 @@ let getByUserId = (id) => {
     throw new Error(error)
   }
   return results
+}
+
+let getAllFavorite = async () => {
+  let result
+  try {
+    result = await favorite.findMany({
+      select: {
+        fav_id: true,
+        account_id: true,
+        album_id: true
+      }
+    })
+  } catch (error) {
+    throw new Error(error)
+  }
+  return result
 }
 
 let favoriteAlbum = async (aid, uid) => {
@@ -47,6 +63,4 @@ let unFavoriteAlbum = async (aid, uid) => {
   }
 }
 
-module.exports.getByUserId = getByUserId
-module.exports.favoriteAlbum = favoriteAlbum
-module.exports.unFavoriteAlbum = unFavoriteAlbum
+module.exports = { getAllFavorite, getByUserId, favoriteAlbum, unFavoriteAlbum }

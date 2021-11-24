@@ -1,6 +1,16 @@
 const router = require("express").Router()
 const favoriteController = require("../controllers/favoriteController")
 
+router.get("/", async (req, res) => {
+  let results
+  try {
+    results = await favoriteController.getAllFavorite()
+  } catch (error) {
+    return res.status(500).send({ error: error.message })
+  }
+  return res.send({ data: results })
+})
+
 router.get("/:ac_id", async (req, res) => {
   let accountId = Number(req.params.ac_id)
   let results
