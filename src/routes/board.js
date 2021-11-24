@@ -3,6 +3,7 @@ const upload = require("../middlewares/uploadFile")
 const { dataNotValid } = require("../helpers/file")
 const boardController = require("../controllers/boardController")
 const auth = require("../middlewares/auth")
+const checkAdmin = require("../middlewares/checkAdmin")
 
 
 router.get("/", async (req, res) => {
@@ -61,6 +62,16 @@ router.delete("/delete/:id", auth, async (req, res) => {
   let accountId = req.account["ac_id"]
   try {
     await boardController.deleteBoard(id, accountId)
+  } catch (error) {
+    return res.status(500).send({ error: error.message })
+  }
+  return res.send({ msg: "Delete board successfully" })
+})
+
+router.delete("/delete/byadmin/:bid", auth, checkAdmin, async (req, res) => {
+  let id = Number(req.params.bid)
+  try {
+    await boardController.deleteBoardByAdmin(id)
   } catch (error) {
     return res.status(500).send({ error: error.message })
   }

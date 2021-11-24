@@ -178,7 +178,26 @@ let deleteBoard = async (id, accountId) => {
     throw new Error(error)
   }
   if (result["b_image"]) {
-    deleteFile(result["b_image"])
+    await deleteFile(result["b_image"])
   }
 }
-module.exports = { findAllBoard, getBoardByPage, addBoard, editBoard, deleteBoard }
+
+let deleteBoardByAdmin = async (id) => {
+  let result
+  try {
+    result = await board.deleteMany({
+      where: {
+        b_id: id,
+      }
+    })
+    if (result.count <= 0) {
+      throw new Error("Can't delete")
+    }
+  } catch (error) {
+    throw new Error(error)
+  }
+  if (result["b_image"]) {
+    await deleteFile(result["b_image"])
+  }
+}
+module.exports = { findAllBoard, getBoardByPage, addBoard, editBoard, deleteBoard, deleteBoardByAdmin }
