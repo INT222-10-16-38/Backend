@@ -178,20 +178,31 @@ let editAccount = async (files, req) => {
     throw new Error(`Please send jsonData`)
   }
   let accountData = await readAccountData(jsonFile, imgFile, req)
-  let isUsernameAndEmailUnique = await account.findFirst({
+  let findedUsername = await account.findFirst({
     where: {
-      OR: [
-        { ac_username: accountData["ac_username"] },
-        { ac_email: accountData["ac_email"] }
-      ]
+      ac_username: accountData["ac_username"]
     },
     select: {
       ac_id: true
     }
   })
-  if (isUsernameAndEmailUnique) {
-    if (isUsernameAndEmailUnique.ac_id != req.account["ac_id"]) {
-      throw new Error("Username or Email exists")
+
+  let findedEmail = await account.findFirst({
+    where: {
+      ac_email: accountData["ac_email"]
+    },
+    select: {
+      ac_id: true
+    }
+  })
+  if (findedUsername) {
+    if (findedUsername.ac_id != req.account["ac_id"]) {
+      throw new Error("Username already exists")
+    }
+  }
+  if (findedEmail) {
+    if (findedEmail.ac_id != req.account["ac_id"]) {
+      throw new Error("Email already exists")
     }
   }
   const { error } = validateEditProfile(accountData)
