@@ -1,8 +1,7 @@
 const router = require("express").Router()
 const upload = require("../middlewares/uploadFile")
 const { dataNotValid } = require("../helpers/file")
-const auth = require("../middlewares/auth")
-const checkAdmin = require("../middlewares/checkAdmin")
+const { auth, checkAdmin } = require("../middlewares/auth")
 const accountController = require("../controllers/accountController")
 
 router.get("/", auth, checkAdmin, async (req, res) => {

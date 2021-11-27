@@ -29,8 +29,6 @@ app.use("/api/accounts", require("./routes/account"))
 
 app.use("/api/entertainments", require("./routes/entertainment"))
 
-app.use("/api/role", require("./routes/role"))
-
 let { sendImage } = require("./helpers/file")
 
 app.use("/api/get-image/:image", sendImage)

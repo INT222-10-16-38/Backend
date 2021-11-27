@@ -3,8 +3,7 @@ const { entertainment } = require("../models/model")
 const upload = require("../middlewares/uploadFile")
 const { dataNotValid } = require("../helpers/file")
 const entertainmentController = require("../controllers/entertainmentController")
-const auth = require("../middlewares/auth")
-const checkAdmin = require("../middlewares/checkAdmin")
+const { auth, checkAdmin } = require("../middlewares/auth")
 
 router.get("/", async (req, res) => {
   let result

@@ -2,8 +2,7 @@ const router = require("express").Router()
 const upload = require("../middlewares/uploadFile")
 const { dataNotValid } = require("../helpers/file")
 const albumController = require("../controllers/albumController")
-const auth = require("../middlewares/auth")
-const checkAdmin = require("../middlewares/checkAdmin")
+const { auth, checkAdmin } = require("../middlewares/auth")
 
 router.get("/", async (req, res) => {
   let results

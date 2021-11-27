@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const { PrismaClient } = require("@prisma/client")
 const { blacklistToken } = new PrismaClient()
 
-module.exports = async (req, res, next) => {
+let auth = async (req, res, next) => {
   const receiveToken = req.headers['authorization']
   if (!receiveToken) {
     return res.status(401).send({ msg: "Please send token" })
@@ -49,3 +49,12 @@ module.exports = async (req, res, next) => {
   req.token = receiveToken
   next()
 }
+
+let checkAdmin = (req, res, next) => {
+  if (req.account.role["role_name"] != "admin" && req.account.role["role_id"] != 1) {
+    return res.status(401).send({ error: "User can't access" })
+  }
+  next()
+}
+
+module.exports = { auth, checkAdmin }
