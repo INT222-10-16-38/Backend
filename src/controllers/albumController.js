@@ -92,8 +92,10 @@ let editAlbum = async (id, files) => {
   }
   let albumData = await readData(jsonFile, findedAlbum, imgFile)
   let checkAlreadyName = await checkAlreadyAlbumName(albumData["a_name"])
-  if (checkAlreadyName.a_id != findedAlbum.a_id) {
-    throw new Error(`Album ${checkAlreadyName.a_name} already exists`)
+  if (checkAlreadyName) {
+    if (checkAlreadyName.a_id != findedAlbum.a_id) {
+      throw new Error(`Album ${checkAlreadyName.a_name} already exists`)
+    }
   }
   let updateResult = await album.update({
     where: {

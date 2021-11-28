@@ -86,8 +86,10 @@ let editArtist = async (id, files) => {
   try {
     let body = await readArtistData(jsonFile, imgFile, findedArtist)
     let checkArtistName = await alreadyArtistName(body["art_name"])
-    if (checkArtistName.art_id != findedArtist.art_id) {
-      throw new Error(`Artist ${checkArtistName.art_name} already exists`)
+    if (checkArtistName) {
+      if (checkArtistName.art_id != findedArtist.art_id) {
+        throw new Error(`Artist ${checkArtistName.art_name} already exists`)
+      }
     }
     result = await artists.update({
       data: body,

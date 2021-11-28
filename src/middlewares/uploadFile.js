@@ -28,11 +28,11 @@ function checkFileType(file, cb) {
 }
 //init upload
 const upload = multer({
-  storage: storage,
-  limits: { fieldSize: 100000 },
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb)
   },
+  storage: storage,
+  limits: { fieldSize: 100000 },
 }).any()
 
 module.exports = async (req, res, next) => {
