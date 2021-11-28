@@ -85,8 +85,10 @@ let editEntertainment = async (files, id) => {
   try {
     body = await readData(jsonFile, imgFile, findedEntertainment)
     let checkEntertainmentName = await alreadyEntertainmentName(body["e_name"])
-    if (checkEntertainmentName.e_id != findedEntertainment.e_id) {
-      throw new Error(`Entertainment ${checkEntertainmentName.e_name} already exists`)
+    if (checkEntertainmentName) {
+      if (checkEntertainmentName.e_id != findedEntertainment.e_id) {
+        throw new Error(`Entertainment ${checkEntertainmentName.e_name} already exists`)
+      }
     }
   }
   catch (error) {

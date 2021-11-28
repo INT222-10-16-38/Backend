@@ -297,9 +297,11 @@ let readAccountData = async (jsonFile, imgFile, req) => {
       accountData["ac_image"] = req.account["ac_image"]
     }
   }
-  for (const [index, img] of imgFile.entries()) {
-    if (img.fieldname == "ac_image") {
-      accountData["ac_image"] = await img.filename
+  if (imgFile) {
+    for (const [index, img] of imgFile.entries()) {
+      if (img.fieldname == "ac_image") {
+        accountData["ac_image"] = await img.filename
+      }
     }
   }
   return accountData
