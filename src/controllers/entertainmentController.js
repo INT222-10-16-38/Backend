@@ -106,7 +106,7 @@ let editEntertainment = async (files, id) => {
     throw new Error(error)
   }
 
-  if (findedEntertainment.e_logo != "") {
+  if (findedEntertainment.e_logo != "" && findedEntertainment.e_logo != "default_image.png") {
     deleteFile(findedEntertainment.e_logo)
   }
   return result

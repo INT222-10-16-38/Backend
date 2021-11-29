@@ -3,6 +3,12 @@ const path = require("path")
 
 const deleteFile = async (fileName) => {
   try {
+    if (fileName == "default_image.png") {
+      throw new Error("Can't delete default image")
+    }
+    if (fileName == "default_profile.png") {
+      throw new Error("Can't delete default profile image")
+    }
     let pathDelete = path.join(__dirname, `../../uploads/${fileName}`)
     await fs.unlink(pathDelete)
   } catch (error) {
@@ -25,7 +31,7 @@ const dataNotValid = async (files) => {
 
 const sendImage = async (req, res, next) => {
   let imageFile = req.params.image
-  let pathFile = path.join(__dirname, `../../uploads/${imageFile}`)
+  let pathFile = path.join(__dirname, `../../ uploads / ${imageFile} `)
   try {
     await fs.readFile(pathFile)
     return res.sendFile(pathFile)

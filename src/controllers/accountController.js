@@ -236,7 +236,7 @@ let editAccount = async (files, req) => {
 
   if (updateResult) {
     for (const [index, img] of imgFile.entries()) {
-      if (req.account.ac_image != "default_ac_image.png") {
+      if (req.account.ac_image != "default_profile.png") {
         await deleteFile(req.account.ac_image)
       }
     }

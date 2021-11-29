@@ -122,10 +122,10 @@ let deleteAlbum = async (id) => {
         a_id: id
       }
     })
-    if (results.cover_image != "default_cover_image.jpg") {
+    if (results.cover_image != "default_image.png") {
       await deleteFile(results.cover_image)
     }
-    if (results.cover_image != "default_preview_image.png") {
+    if (results.cover_image != "default_image.png") {
       await deleteFile(results.preview_image)
     }
   } catch (error) {

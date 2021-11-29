@@ -102,7 +102,7 @@ let editArtist = async (id, files) => {
   }
 
   for (const [index, img] of imgFile.entries()) {
-    if (findedArtist["art_image"] != "default_art.png") {
+    if (findedArtist["art_image"] != "default_image.png") {
       await deleteFile(findedArtist["art_image"])
     }
   }
