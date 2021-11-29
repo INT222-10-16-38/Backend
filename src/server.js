@@ -21,7 +21,7 @@ let corsOptions = {
 
 app.use(cors(corsOptions)); //adding cors middleware to the express with above configurations
 */
-
+app.use(cors())
 app.options('*', cors())
 
 app.use(express.json())
