@@ -2,6 +2,8 @@ const express = require("express")
 const cors = require("cors")
 const app = express()
 
+// Wait for final production
+/* 
 let whitelist = ['https://www.kworld.studio']; //white list consumers
 let corsOptions = {
   origin: function (origin, callback) {
@@ -18,6 +20,9 @@ let corsOptions = {
 }; 
 
 app.use(cors(corsOptions)); //adding cors middleware to the express with above configurations
+*/
+app.use(cors())
+app.options('*', cors())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
